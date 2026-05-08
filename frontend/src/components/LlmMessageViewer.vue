@@ -55,6 +55,9 @@ const hasLLMContent = computed(() => {
 // Detect if content is HTML and format it with proper indentation via DOMParser
 function formatHtml(text) {
   if (!text) return null
+  // Only detect if content starts with or is clearly HTML (multiple tags)
+  let trimmed = text.trim()
+  if (!/^<\w+[\s>]/i.test(trimmed)) return null
   if (!/<\/?(html|div|table|tr|td|th|tbody|thead|ul|ol|li|p|h[1-6]|span|section|article|header|footer|main|nav|form|input|select|option|button|a|img|pre|code|blockquote|dl|dt|dd)[\s>]/i.test(text)) return null
   try {
     const parser = new DOMParser()
