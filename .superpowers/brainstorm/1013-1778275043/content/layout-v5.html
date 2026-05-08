@@ -1,0 +1,89 @@
+<h2>方案 A — 可收缩侧边栏</h2>
+<p class="subtitle">收缩按钮在侧边栏底部，点击收缩后仅显示图标，内容区自动变宽</p>
+
+<div style="display:flex; gap:40px; margin-top:16px;">
+
+<div style="flex:1;">
+<div class="mockup">
+  <div class="mockup-header" style="font-size:13px;">展开状态</div>
+  <div class="mockup-body">
+    <div style="display: flex; min-height: 280px;">
+      <div style="width: 160px; background: #1e1e2e; color: #cdd6f4; padding: 12px; border-radius: 0 0 0 6px; display:flex; flex-direction:column;">
+        <div style="padding: 8px 12px; background: #45475a; border-radius: 6px; margin-bottom: 4px;">📡 代理</div>
+        <div style="padding: 8px 12px; margin-bottom: 4px;">🔀 路由</div>
+        <div style="padding: 8px 12px; margin-bottom: 4px;">📋 日志</div>
+        <div style="padding: 8px 12px; margin-bottom: 4px;">⚙ 设置</div>
+        <div style="padding: 6px; margin-top: auto; text-align:center; font-size:14px; color:#6c7086; border-top:1px solid #313244;">« 收缩</div>
+      </div>
+      <div style="flex:1; padding: 16px; background: #181825; border-radius: 0 0 6px 0;">
+        <div class="placeholder">内容区</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div style="flex:1;">
+<div class="mockup">
+  <div class="mockup-header" style="font-size:13px;">收缩状态</div>
+  <div class="mockup-body">
+    <div style="display: flex; min-height: 280px;">
+      <div style="width: 52px; background: #1e1e2e; color: #cdd6f4; padding: 12px 8px; border-radius: 0 0 0 6px; text-align:center; display:flex; flex-direction:column;">
+        <div style="padding: 8px 0; background:#45475a; border-radius:6px; margin-bottom:4px; font-size:16px;">📡</div>
+        <div style="padding: 8px 0; margin-bottom:4px; font-size:16px;">🔀</div>
+        <div style="padding: 8px 0; margin-bottom:4px; font-size:16px;">📋</div>
+        <div style="padding: 8px 0; margin-bottom:4px; font-size:16px;">⚙</div>
+        <div style="padding: 6px 0; margin-top: auto; text-align:center; font-size:14px; color:#6c7086; border-top:1px solid #313244;">»</div>
+      </div>
+      <div style="flex:1; padding: 16px; background: #181825; border-radius: 0 0 6px 0;">
+        <div class="placeholder">内容区（更宽）</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<h2 style="margin-top: 32px;">方案 B — 顶栏控制 + 设置弹窗</h2>
+<p class="subtitle">无侧边栏，控制栏固定顶部，设置通过齿轮打开弹窗</p>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body" style="padding: 12px; background: #181825;">
+    <div style="padding: 10px 16px; background: #1e1e2e; border-radius: 6px; margin-bottom: 10px; display:flex; gap:12px; align-items:center;">
+      <span style="color:#a6adc8;">端口:</span> <span class="mock-input" style="width:70px;">8899</span>
+      <span style="background:#a6e3a1; color:#1e1e2e; padding:2px 12px; border-radius:10px; font-size:12px;">● 运行中</span>
+      <button class="mock-button">停止</button>
+      <span style="margin-left:auto; font-size:18px; color:#a6adc8;">⚙</span>
+    </div>
+    <div style="display:flex; gap:10px; min-height:240px;">
+      <div style="flex:1; background:#1e1e2e; border-radius:6px; padding:10px;">
+        <div style="color:#cdd6f4; font-weight:bold; margin-bottom:8px;">🔀 路由</div>
+        <div class="placeholder">规则列表</div>
+      </div>
+      <div style="flex:2; background:#1e1e2e; border-radius:6px; padding:10px;">
+        <div style="color:#cdd6f4; font-weight:bold; margin-bottom:8px;">📋 日志</div>
+        <div class="placeholder">日志表格 + 搜索</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 style="margin-top: 32px;">方案 C — Tab切换</h2>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body" style="background: #181825; border-radius: 0 0 6px 6px;">
+    <div style="display:flex; gap:0; border-bottom:2px solid #313244;">
+      <div style="padding:8px 20px; border-bottom:2px solid #89b4fa; color:#89b4fa; margin-bottom:-2px;">📡 代理</div>
+      <div style="padding:8px 20px; color:#6c7086;">🔀 路由</div>
+      <div style="padding:8px 20px; color:#6c7086;">📋 日志</div>
+      <div style="padding:8px 20px; color:#6c7086;">⚙ 设置</div>
+    </div>
+    <div style="padding:16px; min-height:220px;">
+      <div class="placeholder">当前Tab的完整内容</div>
+    </div>
+  </div>
+</div>

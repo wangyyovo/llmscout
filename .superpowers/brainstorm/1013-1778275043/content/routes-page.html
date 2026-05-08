@@ -1,0 +1,54 @@
+<h2>🔀 路由配置页面</h2>
+<p class="subtitle">管理请求路径到LLM服务商域名的映射规则</p>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body">
+    <div style="display: flex; min-height: 320px;">
+      <div style="width: 52px; background: #1e1e2e; padding: 12px 8px; text-align:center; border-radius: 0 0 0 6px;">
+        <div style="padding:8px 0;margin-bottom:4px;font-size:16px;">📡</div>
+        <div style="padding:8px 0;background:#45475a;border-radius:6px;margin-bottom:4px;font-size:16px;">🔀</div>
+        <div style="padding:8px 0;margin-bottom:4px;font-size:16px;">📋</div>
+        <div style="padding:8px 0;font-size:16px;">⚙</div>
+      </div>
+      <div style="flex:1; padding: 16px 20px; background: #181825; border-radius: 0 0 6px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span style="color:#cdd6f4; font-size:18px; font-weight:bold;">路由规则</span>
+          <button class="mock-button">+ 添加路由</button>
+        </div>
+
+        <!-- 路由卡片列表 -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+
+          <div style="background:#1e1e2e; border-radius:6px; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+            <span style="background:#89b4fa; color:#1e1e2e; padding:2px 8px; border-radius:4px; font-size:11px;">prefix</span>
+            <span style="color:#cdd6f4; font-family:monospace;">/openai</span>
+            <span style="color:#6c7086;">→</span>
+            <span style="color:#a6e3a1; font-family:monospace;">api.openai.com</span>
+            <span style="margin-left:auto; color:#6c7086; font-size:13px;">编辑</span>
+            <span style="color:#f38ba8; font-size:13px;">删除</span>
+          </div>
+
+          <div style="background:#1e1e2e; border-radius:6px; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+            <span style="background:#fab387; color:#1e1e2e; padding:2px 8px; border-radius:4px; font-size:11px;">prefix</span>
+            <span style="color:#cdd6f4; font-family:monospace;">/anthropic</span>
+            <span style="color:#6c7086;">→</span>
+            <span style="color:#a6e3a1; font-family:monospace;">api.anthropic.com</span>
+            <span style="margin-left:auto; color:#6c7086; font-size:13px;">编辑</span>
+            <span style="color:#f38ba8; font-size:13px;">删除</span>
+          </div>
+
+          <div style="background:#1e1e2e; border-radius:6px; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+            <span style="background:#cba6f7; color:#1e1e2e; padding:2px 8px; border-radius:4px; font-size:11px;">exact</span>
+            <span style="color:#cdd6f4; font-family:monospace;">/deepseek-chat</span>
+            <span style="color:#6c7086;">→</span>
+            <span style="color:#a6e3a1; font-family:monospace;">api.deepseek.com/v1/chat/...</span>
+            <span style="margin-left:auto; color:#6c7086; font-size:13px;">编辑</span>
+            <span style="color:#f38ba8; font-size:13px;">删除</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

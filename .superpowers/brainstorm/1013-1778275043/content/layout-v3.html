@@ -1,0 +1,62 @@
+<h2>方案 A</h2>
+<p class="subtitle">侧边栏：代理 / 路由 / 日志 / 设置 四个tab</p>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body">
+    <div style="display: flex; min-height: 300px;">
+      <div style="width: 160px; background: #1e1e2e; color: #cdd6f4; padding: 12px; border-radius: 0 0 0 6px;">
+        <div style="padding: 8px 12px; background: #45475a; border-radius: 6px; margin-bottom: 6px;">代理</div>
+        <div style="padding: 8px 12px; margin-bottom: 6px;">路由</div>
+        <div style="padding: 8px 12px; margin-bottom: 6px;">日志</div>
+        <div style="padding: 8px 12px; margin-bottom: 6px; margin-top: auto; color: #a6adc8;">⚙ 设置</div>
+      </div>
+      <div style="flex:1; padding: 16px; background: #181825; border-radius: 0 0 6px 0;">
+        <div class="placeholder">当前页面的完整内容</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 style="margin-top: 32px;">方案 B</h2>
+<p class="subtitle">顶部控制栏（启停+端口+状态）+ 设置按钮，下方路由/日志左右分栏</p>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body" style="padding: 12px; background: #181825;">
+    <div style="padding: 10px 16px; background: #1e1e2e; border-radius: 6px; margin-bottom: 10px; display:flex; gap:12px; align-items:center;">
+      <span style="color:#a6adc8;">端口:</span> <span class="mock-input" style="width:70px;">8899</span>
+      <span style="background:#a6e3a1; color:#1e1e2e; padding:2px 12px; border-radius:10px; font-size:12px;">● 运行中</span>
+      <button class="mock-button" style="margin-left:6px;">停止</button>
+      <span style="margin-left:auto; font-size:18px; color:#a6adc8; cursor:pointer;">⚙</span>
+    </div>
+    <div style="display:flex; gap:10px; min-height:260px;">
+      <div style="flex:1; background:#1e1e2e; border-radius:6px; padding:10px;">
+        <div style="color:#cdd6f4; font-weight:bold; margin-bottom:8px;">路由</div>
+        <div class="placeholder">规则列表</div>
+      </div>
+      <div style="flex:2; background:#1e1e2e; border-radius:6px; padding:10px;">
+        <div style="color:#cdd6f4; font-weight:bold; margin-bottom:8px;">日志</div>
+        <div class="placeholder">日志表格</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 style="margin-top: 32px;">方案 C</h2>
+<p class="subtitle">顶部Tab：代理 / 路由 / 日志 / 设置</p>
+
+<div class="mockup">
+  <div class="mockup-header">llmproxy</div>
+  <div class="mockup-body" style="background: #181825; border-radius: 0 0 6px 6px;">
+    <div style="display:flex; gap:0; border-bottom:2px solid #313244;">
+      <div style="padding:8px 20px; border-bottom:2px solid #89b4fa; color:#89b4fa; margin-bottom:-2px;">代理</div>
+      <div style="padding:8px 20px; color:#6c7086;">路由</div>
+      <div style="padding:8px 20px; color:#6c7086;">日志</div>
+      <div style="padding:8px 20px; color:#6c7086;">⚙ 设置</div>
+    </div>
+    <div style="padding:16px; min-height:260px;">
+      <div class="placeholder">当前Tab的完整内容</div>
+    </div>
+  </div>
+</div>
