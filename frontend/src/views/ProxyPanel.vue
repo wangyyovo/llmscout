@@ -45,21 +45,21 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <h2 style="color: #cdd6f4; margin-bottom: 20px;">📡 代理控制</h2>
-    <n-card style="background: #1e1e2e; border: none; max-width: 500px;">
+    <h2 style="color: var(--text-primary); margin-bottom: 20px;">📡 代理控制</h2>
+    <n-card style="background: var(--bg-card); border: none; max-width: 500px;">
       <n-space vertical size="large">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="color: #a6adc8;">端口</span>
+          <span style="color: var(--text-secondary);">端口</span>
           <n-input
             v-model:value="port"
             :disabled="running"
             style="width: 120px;"
             type="number"
           />
-          <span style="color: #6c7086; font-size: 13px;">localhost:{{ port }}</span>
+          <span style="color: var(--text-muted); font-size: 13px;">localhost:{{ port }}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="color: #a6adc8;">状态</span>
+          <span style="color: var(--text-secondary);">状态</span>
           <n-tag :type="running ? 'success' : 'default'" size="small">
             {{ running ? '● 运行中' : '已停止' }}
           </n-tag>
@@ -74,13 +74,13 @@ onUnmounted(() => {
     </n-card>
 
     <div style="display: flex; gap: 20px; margin-top: 20px;">
-      <n-card style="background: #1e1e2e; border: none; flex: 1;" size="small">
+      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
         <n-statistic label="已配置路由" :value="routeCount" />
       </n-card>
-      <n-card style="background: #1e1e2e; border: none; flex: 1;" size="small">
+      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
         <n-statistic label="今日请求" :value="todayCount" />
       </n-card>
-      <n-card style="background: #1e1e2e; border: none; flex: 1;" size="small">
+      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
         <n-statistic label="运行时长" :value="uptime || '-'" />
       </n-card>
     </div>

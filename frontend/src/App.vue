@@ -1,10 +1,13 @@
 <script setup>
-import { ref, shallowRef, h } from 'vue'
-import { NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
+import { ref, shallowRef, h, computed } from 'vue'
+import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
+import { useTheme } from './composables/useTheme.js'
 import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
 import LogViewer from './views/LogViewer.vue'
 import SettingsPanel from './views/SettingsPanel.vue'
+
+const { naiveTheme, themeClass } = useTheme()
 
 const collapsed = ref(false)
 const activeTab = ref('proxy')
@@ -23,44 +26,80 @@ function handleUpdate(key) {
   const views = { proxy: ProxyPanel, routes: RoutePanel, logs: LogViewer, settings: SettingsPanel }
   currentView.value = views[key] || ProxyPanel
 }
+
+const siderStyle = computed(() => ({
+  background: 'var(--bg-sider)',
+  borderRight: '1px solid var(--border-color)'
+}))
+
+const layoutStyle = computed(() => ({
+  padding: '20px 24px',
+  background: 'var(--bg-main)',
+  color: 'var(--text-primary)'
+}))
 </script>
 
 <template>
-  <n-message-provider>
-    <n-layout has-sider position="absolute" style="height: 100vh;">
-      <n-layout-sider
-        bordered
-        :collapsed="collapsed"
-        collapse-mode="width"
-        :collapsed-width="56"
-        :width="180"
-        :native-scrollbar="false"
-        style="background: #1e1e2e;"
-      >
-        <n-menu
+  <n-config-provider :theme="naiveTheme" :class="themeClass">
+    <n-message-provider>
+      <n-layout has-sider position="absolute" style="height: 100vh;">
+        <n-layout-sider
+          bordered
           :collapsed="collapsed"
+          collapse-mode="width"
           :collapsed-width="56"
-          :collapsed-icon-size="20"
-          :options="menuOptions"
-          :value="activeTab"
-          @update:value="handleUpdate"
-        />
-        <template #collapse-extra>
-          <div style="padding: 8px; text-align: center; border-top: 1px solid #313244;">
-            <n-button quaternary size="small" @click="collapsed = !collapsed" style="color: #6c7086;">
-              {{ collapsed ? '»' : '« 收缩' }}
-            </n-button>
-          </div>
-        </template>
-      </n-layout-sider>
-      <n-layout content-style="padding: 20px 24px; background: #181825; color: #cdd6f4;">
-        <component :is="currentView" />
+          :width="180"
+          :native-scrollbar="false"
+          :style="siderStyle"
+        >
+          <n-menu
+            :collapsed="collapsed"
+            :collapsed-width="56"
+            :collapsed-icon-size="20"
+            :options="menuOptions"
+            :value="activeTab"
+            @update:value="handleUpdate"
+          />
+          <template #collapse-extra>
+            <div style="padding: 8px; text-align: center; border-top: 1px solid var(--border-color);">
+              <n-button quaternary size="small" @click="collapsed = !collapsed" style="color: var(--text-muted);">
+                {{ collapsed ? '»' : '« 收缩' }}
+              </n-button>
+            </div>
+          </template>
+        </n-layout-sider>
+        <n-layout :content-style="layoutStyle">
+          <component :is="currentView" />
+        </n-layout>
       </n-layout>
-    </n-layout>
-  </n-message-provider>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <style>
 html, body { margin: 0; padding: 0; height: 100%; }
-body { background: #181825; }
+
+/* Dark theme (default) */
+body, .theme-dark {
+  --bg-main: #181825;
+  --bg-card: #1e1e2e;
+  --bg-sider: #1e1e2e;
+  --border-color: #313244;
+  --text-primary: #cdd6f4;
+  --text-secondary: #a6adc8;
+  --text-muted: #6c7086;
+}
+
+/* Light theme */
+.theme-light {
+  --bg-main: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-sider: #fafafa;
+  --border-color: #e0e0e0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+}
+
+body { background: var(--bg-main); }
 </style>

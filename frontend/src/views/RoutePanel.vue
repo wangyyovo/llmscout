@@ -58,28 +58,28 @@ onMounted(load)
 <template>
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h2 style="color: #cdd6f4;">🔀 路由规则</h2>
+      <h2 style="color: var(--text-primary);">🔀 路由规则</h2>
       <n-button type="primary" @click="openAdd">+ 添加路由</n-button>
     </div>
 
     <n-card v-for="rule in rules" :key="rule.id"
-      style="background: #1e1e2e; border: none; margin-bottom: 8px;">
+      style="background: var(--bg-card); border: none; margin-bottom: 8px;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <n-tag :type="rule.type === 'prefix' ? 'info' : 'warning'" size="small">
           {{ rule.type }}
         </n-tag>
-        <code style="color: #cdd6f4;">{{ rule.path }}</code>
-        <span style="color: #6c7086;">→</span>
+        <code style="color: var(--text-primary);">{{ rule.path }}</code>
+        <span style="color: var(--text-muted);">→</span>
         <code style="color: #a6e3a1;">{{ rule.targetUrl }}</code>
-        <span style="color: #6c7086; font-size: 12px; margin-left: 4px;">({{ rule.name }})</span>
+        <span style="color: var(--text-muted); font-size: 12px; margin-left: 4px;">({{ rule.name }})</span>
         <span style="margin-left: auto;">
-          <n-button quaternary size="small" @click="openEdit(rule)" style="color: #6c7086;">编辑</n-button>
+          <n-button quaternary size="small" @click="openEdit(rule)" style="color: var(--text-muted);">编辑</n-button>
           <n-button quaternary size="small" @click="remove(rule.id)" style="color: #f38ba8;">删除</n-button>
         </span>
       </div>
     </n-card>
 
-    <div v-if="rules.length === 0" style="color: #6c7086; text-align: center; padding: 40px;">
+    <div v-if="rules.length === 0" style="color: var(--text-muted); text-align: center; padding: 40px;">
       暂无路由规则，点击上方按钮添加
     </div>
 

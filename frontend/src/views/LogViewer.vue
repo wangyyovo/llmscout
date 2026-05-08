@@ -110,7 +110,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
 <template>
   <div>
-    <h2 style="color: #cdd6f4; margin-bottom: 16px;">📋 请求日志</h2>
+    <h2 style="color: var(--text-primary); margin-bottom: 16px;">📋 请求日志</h2>
 
     <!-- Filters -->
     <div style="display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;">
@@ -119,7 +119,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       <n-select v-model:value="statusCode" :options="statusOptions" style="width: 110px;" @update:value="search" />
       <n-select v-model:value="protocol" :options="protocolOptions" style="width: 110px;" @update:value="search" />
       <n-button type="primary" size="small" @click="search">搜索</n-button>
-      <span style="margin-left: auto; display: flex; align-items: center; gap: 6px; color: #a6adc8; font-size: 13px;">
+      <span style="margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px;">
         <span>🔄</span>
         <n-switch v-model:value="autoRefresh" @update:value="toggleAuto" />
         <n-select v-model:value="refreshInterval" :options="[{label:'3 秒',value:3},{label:'5 秒',value:5},{label:'10 秒',value:10}]" style="width: 80px;" />
@@ -127,17 +127,17 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     </div>
 
     <!-- Table -->
-    <div style="background: #1e1e2e; border-radius: 8px; overflow: hidden;">
+    <div style="background: var(--bg-card); border-radius: 8px; overflow: hidden;">
       <n-table :single-line="false" style="background: transparent;">
         <thead>
-          <tr style="background: #313244;">
-            <th style="color: #a6adc8; width: 55px;">协议</th>
-            <th style="color: #a6adc8; width: 55px;">方法</th>
-            <th style="color: #a6adc8; width: 65px;">状态</th>
-            <th style="color: #a6adc8; width: 90px;">服务商</th>
-            <th style="color: #a6adc8;">路径</th>
-            <th style="color: #a6adc8; width: 65px;">耗时</th>
-            <th style="color: #a6adc8; width: 140px;">时间</th>
+          <tr style="background: var(--border-color);">
+            <th style="color: var(--text-secondary); width: 55px;">协议</th>
+            <th style="color: var(--text-secondary); width: 55px;">方法</th>
+            <th style="color: var(--text-secondary); width: 65px;">状态</th>
+            <th style="color: var(--text-secondary); width: 90px;">服务商</th>
+            <th style="color: var(--text-secondary);">路径</th>
+            <th style="color: var(--text-secondary); width: 65px;">耗时</th>
+            <th style="color: var(--text-secondary); width: 140px;">时间</th>
           </tr>
         </thead>
         <tbody>
@@ -145,13 +145,13 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
             <td style="color: #89b4fa;">{{ log.method }}</td>
             <td><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
-            <td style="color: #cdd6f4;">{{ log.routeName }}</td>
+            <td style="color: var(--text-primary);">{{ log.routeName }}</td>
             <td><code style="color: #a6e3a1; font-size: 12px;">{{ log.path }}</code></td>
-            <td style="color: #cdd6f4;">{{ log.latencyMs }}ms</td>
-            <td style="color: #a6adc8; font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
+            <td style="color: var(--text-primary);">{{ log.latencyMs }}ms</td>
+            <td style="color: var(--text-secondary); font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
-            <td colspan="7" style="text-align: center; color: #6c7086; padding: 40px;">暂无日志记录</td>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
           </tr>
         </tbody>
       </n-table>
@@ -159,7 +159,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
     <!-- Pagination -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-      <div style="color: #a6adc8; font-size: 12px;">
+      <div style="color: var(--text-secondary); font-size: 12px;">
         每页 <n-select v-model:value="pageSize" :options="[{label:'20',value:20},{label:'50',value:50},{label:'100',value:100}]" style="width: 70px; display: inline-block;" @update:value="load" /> 条
       </div>
       <n-pagination
