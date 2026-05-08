@@ -52,28 +52,43 @@ const hasLLMContent = computed(() => {
   return messages.value || tools.value
 })
 
-// Detect if content is HTML and format it with proper indentation
+// Detect if content is HTML and format it with proper indentation via DOMParser
 function formatHtml(text) {
   if (!text) return null
-  // Only detect as HTML if there are structural block-level tags
   if (!/<\/?(html|div|table|tr|td|th|tbody|thead|ul|ol|li|p|h[1-6]|span|section|article|header|footer|main|nav|form|input|select|option|button|a|img|pre|code|blockquote|dl|dt|dd)[\s>]/i.test(text)) return null
-  let indent = 0
-  const lines = []
-  const tagRegex = /(<\/?[\w-]+(?:\s[^>]*)?>)|([^<]+)/g
-  let match
-  while ((match = tagRegex.exec(text)) !== null) {
-    if (match[2]) {
-      const trimmed = match[2].trim()
-      if (trimmed) lines.push('  '.repeat(indent) + trimmed)
-    } else if (match[1]) {
-      const isClosing = match[1].startsWith('</')
-      const isSelfClosing = match[1].endsWith('/>')
-      if (isClosing) indent = Math.max(0, indent - 1)
-      lines.push('  '.repeat(indent) + match[1])
-      if (!isClosing && !isSelfClosing) indent++
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(text, 'text/html')
+    const body = doc.body
+    let result = ''
+    function walk(node, depth) {
+      let indent = '  '.repeat(depth)
+      for (let child = node.firstChild; child; child = child.nextSibling) {
+        if (child.nodeType === 3) {
+          let t = (child.textContent || '').trim()
+          if (t) result += indent + t + '\n'
+        } else if (child.nodeType === 1) {
+          let tag = child.tagName.toLowerCase()
+          let selfClosing = ['br','hr','img','input','meta','link','area','base','col','embed','source','track','wbr'].includes(tag)
+          let attrs = ''
+          for (let a of child.attributes) {
+            attrs += ' ' + a.name + '="' + a.value + '"'
+          }
+          if (selfClosing) {
+            result += indent + '<' + tag + attrs + ' />\n'
+          } else {
+            result += indent + '<' + tag + attrs + '>\n'
+            walk(child, depth + 1)
+            result += indent + '</' + tag + '>\n'
+          }
+        }
+      }
     }
+    walk(body, 0)
+    return result.trim()
+  } catch {
+    return null
   }
-  return lines.filter(l => l.trim()).join('\n')
 }
 
 const roleColors = {
