@@ -1,6 +1,9 @@
 package storage
 
-import "database/sql"
+import (
+	"database/sql"
+	"log"
+)
 
 type SettingsRepo struct{ db *sql.DB }
 
@@ -11,7 +14,11 @@ func NewSettingsRepo(db *sql.DB) *SettingsRepo {
 func (r *SettingsRepo) Get(key, defaultVal string) string {
 	var val string
 	err := r.db.QueryRow("SELECT value FROM settings WHERE key = ?", key).Scan(&val)
+	if err == sql.ErrNoRows {
+		return defaultVal
+	}
 	if err != nil {
+		log.Printf("settings.Get(%q): %v", key, err)
 		return defaultVal
 	}
 	return val

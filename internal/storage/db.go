@@ -11,6 +11,11 @@ func InitDB(dbPath string) (*sql.DB, error) {
 		return nil, err
 	}
 	if err := migrate(db); err != nil {
+		db.Close()
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
+		db.Close()
 		return nil, err
 	}
 	return db, nil
