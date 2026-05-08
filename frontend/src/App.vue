@@ -84,6 +84,8 @@ body, .theme-dark {
   --bg-main: #181825;
   --bg-card: #1e1e2e;
   --bg-sider: #1e1e2e;
+  --bg-code: #11111b;
+  --bg-message: #1e1e2e;
   --border-color: #313244;
   --text-primary: #cdd6f4;
   --text-secondary: #a6adc8;
@@ -95,6 +97,8 @@ body, .theme-dark {
   --bg-main: #f5f5f5;
   --bg-card: #ffffff;
   --bg-sider: #fafafa;
+  --bg-code: #f0f0f0;
+  --bg-message: #f8f8f8;
   --border-color: #e0e0e0;
   --text-primary: #333333;
   --text-secondary: #666666;
