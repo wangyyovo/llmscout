@@ -1,4 +1,18 @@
 <script setup>
+import { ref } from 'vue'
+import { NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
+
+const collapsed = ref(false)
+const menuOptions = [
+  {
+    label: '对话',
+    key: 'chat',
+  },
+  {
+    label: '设置',
+    key: 'settings',
+  },
+]
 </script>
 
 <template>
