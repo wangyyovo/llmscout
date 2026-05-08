@@ -28,9 +28,12 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	// Determine DB path
-	home, _ := os.UserHomeDir()
-	a.dbPath = filepath.Join(home, ".llmscout", "data.db")
+	// Determine DB path (default: ./data/llmscout.db)
+	wd, err := os.Getwd()
+	if err != nil {
+		panic("failed to get working directory: " + err.Error())
+	}
+	a.dbPath = filepath.Join(wd, "data", "llmscout.db")
 	os.MkdirAll(filepath.Dir(a.dbPath), 0755)
 
 	// Init DB
@@ -107,6 +110,9 @@ func (a *App) GetLog(id int64) (*log.Entry, error) { return a.logSvc.Get(id) }
 func (a *App) ClearLogs() error                    { return a.logSvc.Clear() }
 
 func (a *App) GetLogRouteNames() ([]string, error) { return a.logSvc.GetRouteNames() }
+
+// DB path
+func (a *App) GetDbPath() string { return a.dbPath }
 
 // Settings methods
 func (a *App) GetSetting(key, defaultVal string) string {
