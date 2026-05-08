@@ -98,6 +98,9 @@ func (r *LogsRepo) Query(filter log.Filter) (log.QueryResult, error) {
 		}
 		entries = append(entries, e)
 	}
+	if err := rows.Err(); err != nil {
+		return log.QueryResult{}, err
+	}
 	return log.QueryResult{List: entries, Total: total, Page: filter.Page}, nil
 }
 
@@ -132,6 +135,9 @@ func (r *LogsRepo) GetRouteNames() ([]string, error) {
 			return nil, err
 		}
 		names = append(names, n)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return names, nil
 }

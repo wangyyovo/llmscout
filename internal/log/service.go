@@ -1,6 +1,11 @@
 package log
 
-import "time"
+import (
+	stdlog "log"
+	"sync"
+	"sync/atomic"
+	"time"
+)
 
 type entryRepo interface {
 	Insert(Entry) (int64, error)
@@ -11,25 +16,35 @@ type entryRepo interface {
 }
 
 type Service struct {
-	repo    entryRepo
-	entries chan Entry
+	repo         entryRepo
+	entries      chan Entry
+	done         chan struct{}
+	wg           sync.WaitGroup
+	droppedCount atomic.Int64
 }
 
 func NewService(repo entryRepo) *Service {
 	s := &Service{
 		repo:    repo,
 		entries: make(chan Entry, 100),
+		done:    make(chan struct{}),
 	}
+	s.wg.Add(1)
 	go s.worker()
 	return s
 }
 
 func (s *Service) worker() {
-	for entry := range s.entries {
-		entry.CreatedAt = time.Now()
-		_, err := s.repo.Insert(entry)
-		if err != nil {
-			// Log and drop — never block the proxy
+	defer s.wg.Done()
+	for {
+		select {
+		case entry := <-s.entries:
+			entry.CreatedAt = time.Now()
+			if _, err := s.repo.Insert(entry); err != nil {
+				stdlog.Printf("log service: insert failed: %v", err)
+			}
+		case <-s.done:
+			return
 		}
 	}
 }
@@ -39,7 +54,19 @@ func (s *Service) Record(entry Entry) {
 	select {
 	case s.entries <- entry:
 	default:
+		s.droppedCount.Add(1)
 	}
+}
+
+// Close shuts down the worker goroutine and waits for pending writes.
+func (s *Service) Close() {
+	close(s.done)
+	s.wg.Wait()
+}
+
+// DroppedCount returns the number of entries dropped due to a full buffer.
+func (s *Service) DroppedCount() int64 {
+	return s.droppedCount.Load()
 }
 
 func (s *Service) Query(filter Filter) (QueryResult, error) {
