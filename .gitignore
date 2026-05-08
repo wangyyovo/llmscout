@@ -104,3 +104,9 @@ dist
 .tern-port
 
 .DS_Store
+
+# Superpowers session artifacts
+.superpowers/
+
+# Wails auto-generated JS bridge
+frontend/wailsjs/
