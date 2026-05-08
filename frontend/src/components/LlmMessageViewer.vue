@@ -1,5 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onErrorCaptured } from 'vue'
+
+const renderError = ref(false)
+onErrorCaptured(() => { renderError.value = true; return false })
 import { NCollapse, NCollapseItem, NTag, NButton } from 'naive-ui'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
@@ -109,7 +112,10 @@ const roleColors = {
 </script>
 
 <template>
-  <div>
+  <div v-if="renderError">
+    <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px; font-size: 12px; color: var(--text-primary); white-space: pre-wrap;">{{ data || '（无数据）' }}</pre>
+  </div>
+  <div v-else>
     <!-- Model info row + raw toggle -->
     <div v-if="hasLLMContent" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
       <n-tag v-if="modelInfo" size="small" type="primary">{{ modelInfo }}</n-tag>

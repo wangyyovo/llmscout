@@ -2,11 +2,18 @@
 import { computed } from 'vue'
 import markdownit from 'markdown-it'
 
-const md = markdownit({
-  html: false,
-  linkify: true,
-  breaks: true
-})
+let md = null
+function getMd() {
+  if (!md) {
+    try {
+      md = markdownit({ html: false, linkify: true, breaks: true })
+    } catch (e) {
+      console.error('markdown-it init failed:', e)
+      md = { render: (s) => s || '' }
+    }
+  }
+  return md
+}
 
 const props = defineProps({
   content: { type: String, default: '' }
@@ -14,7 +21,11 @@ const props = defineProps({
 
 const rendered = computed(() => {
   if (!props.content) return ''
-  return md.render(props.content)
+  try {
+    return getMd().render(props.content)
+  } catch {
+    return props.content
+  }
 })
 </script>
 

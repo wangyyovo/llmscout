@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, onErrorCaptured } from 'vue'
 import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane } from 'naive-ui'
 import { QueryLogs, GetLog, GetLogRouteNames } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
