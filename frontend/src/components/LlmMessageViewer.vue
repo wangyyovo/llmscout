@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { NCollapse, NCollapseItem, NTag, NButton } from 'naive-ui'
+import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps({
   data: { type: String, default: '' },
@@ -99,7 +100,7 @@ const roleColors = {
             {{ msg.reasoning_content }}
           </div>
 
-          <div v-if="msg.content" style="color: var(--text-primary); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">{{ msg.content }}</div>
+          <markdown-renderer v-if="msg.content" :content="msg.content" />
           <div v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</div>
 
           <div v-if="msg.tool_calls && msg.tool_calls.length" style="margin-top: 8px;">
