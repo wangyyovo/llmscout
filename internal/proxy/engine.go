@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,6 +36,7 @@ type Engine struct {
 	logSvc  interface {
 		Record(log.Entry)
 	}
+	client   *http.Client
 }
 
 func NewEngine(port int, matcher Matcher, logSvc interface {
@@ -44,6 +46,7 @@ func NewEngine(port int, matcher Matcher, logSvc interface {
 		port:    port,
 		matcher: matcher,
 		logSvc:  logSvc,
+		client:  &http.Client{Timeout: 180 * time.Second},
 	}
 }
 
@@ -87,7 +90,11 @@ func (e *Engine) Stop() error {
 		return nil
 	}
 	if e.server != nil {
-		e.server.Close()
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		if err := e.server.Shutdown(ctx); err != nil {
+			stdlog.Printf("proxy shutdown: %v", err)
+		}
 	}
 	e.running = false
 	return nil
@@ -132,7 +139,10 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read and store request body
-	reqBody, _ := io.ReadAll(r.Body)
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		stdlog.Printf("proxy: failed to read request body: %v", err)
+	}
 	r.Body.Close()
 	r.Body = io.NopCloser(bytes.NewReader(reqBody))
 
@@ -140,12 +150,11 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 	reqHeaders := headersToJSON(r.Header)
 
 	// Build outgoing request
-	outReq, _ := http.NewRequest(r.Method, targetURL, bytes.NewReader(reqBody))
+	outReq, _ := http.NewRequestWithContext(r.Context(), r.Method, targetURL, bytes.NewReader(reqBody))
 	outReq.Header = r.Header.Clone()
 	outReq.Header.Set("X-Forwarded-For", r.RemoteAddr)
 
-	client := &http.Client{Timeout: 180 * time.Second}
-	resp, err := client.Do(outReq)
+	resp, err := e.client.Do(outReq)
 	if err != nil {
 		http.Error(w, "Upstream error: "+err.Error(), http.StatusBadGateway)
 		e.logSvc.Record(log.Entry{
@@ -167,15 +176,34 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Copy response headers to client
 	for k, v := range resp.Header {
-		w.Header()[k] = v
+		w.Header()[k] = append([]string{}, v...)
 	}
 	w.WriteHeader(resp.StatusCode)
 
 	if strings.Contains(contentType, "text/event-stream") {
-		// SSE: stream to client while buffering
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming not supported", http.StatusInternalServerError)
+			return
+		}
 		var sseBuf bytes.Buffer
-		written, _ := io.Copy(io.MultiWriter(w, &sseBuf), resp.Body)
-
+		buf := make([]byte, 4096)
+		for {
+			n, err := resp.Body.Read(buf)
+			if n > 0 {
+				chunk := buf[:n]
+				w.Write(chunk)
+				sseBuf.Write(chunk)
+				flusher.Flush()
+			}
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				// Log partial data read
+				break
+			}
+		}
 		e.logSvc.Record(log.Entry{
 			RouteName:   routeName,
 			Method:      r.Method,
@@ -188,9 +216,11 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RespBody:    sseBuf.String(),
 			Protocol:    "SSE",
 		})
-		_ = written
 	} else {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			stdlog.Printf("proxy: failed to read response body: %v", err)
+		}
 		w.Write(respBody)
 
 		e.logSvc.Record(log.Entry{
