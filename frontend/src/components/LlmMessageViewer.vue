@@ -91,6 +91,11 @@ function formatHtml(text) {
   }
 }
 
+function tryParseJson(str) {
+  if (!str) return null
+  try { return JSON.parse(str) } catch { return null }
+}
+
 const roleColors = {
   system: 'info',
   user: 'primary',
@@ -149,28 +154,50 @@ const roleColors = {
           <div v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</div>
 
           <div v-if="msg.tool_calls && msg.tool_calls.length" style="margin-top: 8px;">
-            <div style="color: #fab387; font-size: 12px; margin-bottom: 4px;">🔧 tool_calls:</div>
+            <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;">🔧 工具调用:</div>
             <div v-for="(tc, j) in msg.tool_calls" :key="j" style="margin-top: 4px;">
-              <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px;">
-                <code style="color: #89dceb; font-size: 12px;">{{ tc.function.name }}</code>
-                <pre style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ tc.function.arguments }}</pre>
+              <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #89dceb;">
+                <code style="color: #89dceb; font-size: 13px; font-weight: bold;">{{ tc.function.name }}</code>
+                <div v-if="tc.function.arguments" style="margin-top: 6px;">
+                  <template v-if="tryParseJson(tc.function.arguments)">
+                    <div v-for="(val, key) in tryParseJson(tc.function.arguments)" :key="key" style="display: flex; align-items: baseline; gap: 6px; padding: 3px 6px; font-size: 12px;">
+                      <code style="color: #89dceb; white-space: nowrap;">{{ key }}</code>
+                      <span style="color: var(--text-muted);">=</span>
+                      <span style="color: #a6e3a1; word-break: break-all;">{{ typeof val === 'string' ? val : JSON.stringify(val) }}</span>
+                    </div>
+                  </template>
+                  <pre v-else style="color: var(--text-primary); font-size: 11px; white-space: pre-wrap;">{{ tc.function.arguments }}</pre>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-if="tools" style="margin-top: 16px;">
+      <div v-if="tools && tools.length > 0" style="margin-top: 16px;">
         <n-collapse>
-          <n-collapse-item title="🔧 工具定义 ({{ tools.length }})" name="tools">
-            <div v-for="(tool, i) in tools" :key="i" style="margin-bottom: 8px; padding: 8px; background: var(--bg-code); border-radius: 4px;">
-              <div v-if="tool.function">
-                <code style="color: #89dceb; font-size: 12px;">{{ tool.function.name }}</code>
-                <div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">{{ tool.function.description || '' }}</div>
-                <pre v-if="tool.function.parameters" style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ JSON.stringify(tool.function.parameters, null, 2) }}</pre>
+          <n-collapse-item :title="'🔧 工具定义 (' + tools.length + ')'" name="tools">
+            <div v-for="(tool, i) in tools" :key="i" style="margin-bottom: 12px;">
+              <div v-if="tool.function" style="background: var(--bg-message); border-radius: 8px; padding: 12px; border-left: 3px solid #89dceb;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  <n-tag size="small" type="info">{{ tool.type || 'function' }}</n-tag>
+                  <code style="color: #89dceb; font-size: 14px; font-weight: bold;">{{ tool.function.name }}</code>
+                </div>
+                <div v-if="tool.function.description" style="color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">{{ tool.function.description }}</div>
+                <div v-if="tool.function.parameters" style="margin-top: 6px;">
+                  <div v-if="tool.function.parameters.properties">
+                    <div v-for="(param, pName) in tool.function.parameters.properties" :key="pName" style="display: flex; align-items: baseline; gap: 6px; padding: 4px 8px; margin: 2px 0; background: var(--bg-code); border-radius: 4px; font-size: 12px;">
+                      <code style="color: #89dceb; font-weight: bold; white-space: nowrap;">{{ pName }}</code>
+                      <span v-if="param.type" style="color: var(--text-muted); font-size: 11px;">{{ param.type }}</span>
+                      <span v-if="tool.function.parameters.required && tool.function.parameters.required.includes(pName)" style="color: #f38ba8; font-size: 11px;">*必填</span>
+                      <span v-if="param.description" style="color: var(--text-secondary); margin-left: 4px;">— {{ param.description }}</span>
+                    </div>
+                  </div>
+                  <pre v-else style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ JSON.stringify(tool.function.parameters, null, 2) }}</pre>
+                </div>
               </div>
             </div>
-            <div v-if="toolChoice" style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">tool_choice: <code style="color: #a6e3a1;">{{ JSON.stringify(toolChoice) }}</code></div>
+            <div v-if="toolChoice" style="color: var(--text-muted); font-size: 11px; margin-top: 8px;">tool_choice: <code style="color: #a6e3a1;">{{ JSON.stringify(toolChoice) }}</code></div>
           </n-collapse-item>
         </n-collapse>
       </div>
