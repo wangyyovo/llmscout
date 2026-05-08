@@ -110,3 +110,7 @@ dist
 
 # Wails auto-generated JS bridge
 frontend/wailsjs/
+
+# Wails build artifacts
+build/bin/
+frontend/package.json.md5
