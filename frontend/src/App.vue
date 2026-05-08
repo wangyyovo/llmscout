@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef, h } from 'vue'
 import { NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
 import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
@@ -10,10 +10,10 @@ const collapsed = ref(false)
 const activeTab = ref('proxy')
 
 const menuOptions = [
-  { label: () => '代理', key: 'proxy', icon: () => '📡' },
-  { label: () => '路由', key: 'routes', icon: () => '🔀' },
-  { label: () => '日志', key: 'logs', icon: () => '📋' },
-  { label: () => '设置', key: 'settings', icon: () => '⚙' },
+  { label: () => '代理', key: 'proxy', icon: () => h('span', '📡') },
+  { label: () => '路由', key: 'routes', icon: () => h('span', '🔀') },
+  { label: () => '日志', key: 'logs', icon: () => h('span', '📋') },
+  { label: () => '设置', key: 'settings', icon: () => h('span', '⚙') },
 ]
 
 const currentView = shallowRef(ProxyPanel)
