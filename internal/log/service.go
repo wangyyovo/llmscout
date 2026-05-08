@@ -39,7 +39,7 @@ func (s *Service) worker() {
 	for {
 		select {
 		case entry := <-s.entries:
-			entry.CreatedAt = time.Now()
+			entry.CreatedAt = time.Now().UnixMilli()
 			if _, err := s.repo.Insert(entry); err != nil {
 				stdlog.Printf("log service: insert failed: %v", err)
 			}

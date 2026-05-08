@@ -5,6 +5,7 @@ import (
 	"fmt"
 	stdlog "log"
 	"strings"
+	"time"
 
 	"github.com/llmscout/llmscout/internal/log"
 )
@@ -16,13 +17,14 @@ func NewLogsRepo(db *sql.DB) *LogsRepo {
 }
 
 func (r *LogsRepo) Insert(entry log.Entry) (int64, error) {
+	createdAt := time.UnixMilli(entry.CreatedAt)
 	res, err := r.db.Exec(
 		`INSERT INTO logs (route_name, method, path, protocol, status_code, latency_ms,
 		 req_headers, req_body, resp_headers, resp_body, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		entry.RouteName, entry.Method, entry.Path, entry.Protocol,
 		entry.StatusCode, entry.LatencyMs, entry.ReqHeaders, entry.ReqBody,
-		entry.RespHeaders, entry.RespBody, entry.CreatedAt,
+		entry.RespHeaders, entry.RespBody, createdAt,
 	)
 	if err != nil {
 		return 0, err
@@ -90,12 +92,14 @@ func (r *LogsRepo) Query(filter log.Filter) (log.QueryResult, error) {
 	var entries []log.Entry
 	for rows.Next() {
 		var e log.Entry
+		var createdAt time.Time
 		if err := rows.Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.Protocol,
 			&e.StatusCode, &e.LatencyMs, &e.ReqHeaders, &e.ReqBody,
-			&e.RespHeaders, &e.RespBody, &e.CreatedAt); err != nil {
+			&e.RespHeaders, &e.RespBody, &createdAt); err != nil {
 			stdlog.Printf("scan log row: %v", err)
 			continue
 		}
+		e.CreatedAt = createdAt.UnixMilli()
 		entries = append(entries, e)
 	}
 	if err := rows.Err(); err != nil {
@@ -106,14 +110,16 @@ func (r *LogsRepo) Query(filter log.Filter) (log.QueryResult, error) {
 
 func (r *LogsRepo) Get(id int64) (*log.Entry, error) {
 	var e log.Entry
+	var createdAt time.Time
 	err := r.db.QueryRow(
 		"SELECT id, route_name, method, path, protocol, status_code, latency_ms, req_headers, req_body, resp_headers, resp_body, created_at FROM logs WHERE id=?", id,
 	).Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.Protocol,
 		&e.StatusCode, &e.LatencyMs, &e.ReqHeaders, &e.ReqBody,
-		&e.RespHeaders, &e.RespBody, &e.CreatedAt)
+		&e.RespHeaders, &e.RespBody, &createdAt)
 	if err != nil {
 		return nil, err
 	}
+	e.CreatedAt = createdAt.UnixMilli()
 	return &e, nil
 }
 

@@ -22,9 +22,12 @@ func (r *RoutesRepo) List() ([]route.Rule, error) {
 	var rules []route.Rule
 	for rows.Next() {
 		var rule route.Rule
-		if err := rows.Scan(&rule.ID, &rule.Name, &rule.Type, &rule.Path, &rule.TargetURL, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
+		var createdAt, updatedAt time.Time
+		if err := rows.Scan(&rule.ID, &rule.Name, &rule.Type, &rule.Path, &rule.TargetURL, &createdAt, &updatedAt); err != nil {
 			return nil, err
 		}
+		rule.CreatedAt = createdAt.UnixMilli()
+		rule.UpdatedAt = updatedAt.UnixMilli()
 		rules = append(rules, rule)
 	}
 	return rules, nil
@@ -57,10 +60,13 @@ func (r *RoutesRepo) Delete(id int64) error {
 
 func (r *RoutesRepo) Get(id int64) (*route.Rule, error) {
 	var rule route.Rule
+	var createdAt, updatedAt time.Time
 	err := r.db.QueryRow("SELECT id, name, type, path, target_url, created_at, updated_at FROM routes WHERE id=?", id).
-		Scan(&rule.ID, &rule.Name, &rule.Type, &rule.Path, &rule.TargetURL, &rule.CreatedAt, &rule.UpdatedAt)
+		Scan(&rule.ID, &rule.Name, &rule.Type, &rule.Path, &rule.TargetURL, &createdAt, &updatedAt)
 	if err != nil {
 		return nil, err
 	}
+	rule.CreatedAt = createdAt.UnixMilli()
+	rule.UpdatedAt = updatedAt.UnixMilli()
 	return &rule, nil
 }

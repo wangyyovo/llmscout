@@ -1,20 +1,18 @@
 package log
 
-import "time"
-
 type Entry struct {
-	ID          int64     `json:"id"`
-	RouteName   string    `json:"routeName"`
-	Method      string    `json:"method"`
-	Path        string    `json:"path"`
-	Protocol    string    `json:"protocol"` // "REST" | "SSE"
-	StatusCode  int       `json:"statusCode"`
-	LatencyMs   int64     `json:"latencyMs"`
-	ReqHeaders  string    `json:"reqHeaders"`
-	ReqBody     string    `json:"reqBody"`
-	RespHeaders string    `json:"respHeaders"`
-	RespBody    string    `json:"respBody"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          int64  `json:"id"`
+	RouteName   string `json:"routeName"`
+	Method      string `json:"method"`
+	Path        string `json:"path"`
+	Protocol    string `json:"protocol"` // "REST" | "SSE"
+	StatusCode  int    `json:"statusCode"`
+	LatencyMs   int64  `json:"latencyMs"`
+	ReqHeaders  string `json:"reqHeaders"`
+	ReqBody     string `json:"reqBody"`
+	RespHeaders string `json:"respHeaders"`
+	RespBody    string `json:"respBody"`
+	CreatedAt   int64  `json:"createdAt"` // UnixMilli
 }
 
 type Filter struct {

@@ -16,10 +16,10 @@ import (
 )
 
 type Status struct {
-	Running   bool      `json:"running"`
-	Port      int       `json:"port"`
-	StartTime time.Time `json:"startTime"`
-	Uptime    string    `json:"uptime"`
+	Running   bool   `json:"running"`
+	Port      int    `json:"port"`
+	StartTime int64  `json:"startTime"` // UnixMilli
+	Uptime    string `json:"uptime"`
 }
 
 type Matcher interface {
@@ -110,7 +110,7 @@ func (e *Engine) Status() Status {
 	return Status{
 		Running:   e.running,
 		Port:      e.port,
-		StartTime: e.startAt,
+		StartTime: e.startAt.UnixMilli(),
 		Uptime:    uptime,
 	}
 }
