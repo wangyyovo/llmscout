@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane } from 'naive-ui'
 import { QueryLogs, GetLog, GetLogRouteNames } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
+import LlmMessageViewer from '../components/LlmMessageViewer.vue'
 
 const logs = ref([])
 const total = ref(0)
@@ -171,17 +172,23 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     </div>
 
     <!-- Detail Modal -->
-    <n-modal v-model:show="showDetail" preset="card" title="请求详情" style="max-width: 800px;" :segmented="{ content: true }">
+    <n-modal v-model:show="showDetail" preset="card" title="请求详情" style="max-width: 860px;" :segmented="{ content: true }">
       <template v-if="detailLog">
         <n-tabs type="line">
-          <n-tab-pane name="reqBody" tab="请求体">
+          <n-tab-pane name="parsedReq" tab="📖 请求解析">
+            <llm-message-viewer :data="detailLog.reqBody" mode="request" />
+          </n-tab-pane>
+          <n-tab-pane name="parsedResp" tab="📖 响应解析">
+            <llm-message-viewer :data="detailLog.respBody" mode="response" />
+          </n-tab-pane>
+          <n-tab-pane name="reqBody" tab="原始请求体">
             <json-viewer :data="detailLog.reqBody" />
+          </n-tab-pane>
+          <n-tab-pane name="respBody" tab="原始响应体">
+            <json-viewer :data="detailLog.respBody" />
           </n-tab-pane>
           <n-tab-pane name="reqHeaders" tab="请求头">
             <json-viewer :data="detailLog.reqHeaders" />
-          </n-tab-pane>
-          <n-tab-pane name="respBody" tab="响应体">
-            <json-viewer :data="detailLog.respBody" />
           </n-tab-pane>
           <n-tab-pane name="respHeaders" tab="响应头">
             <json-viewer :data="detailLog.respHeaders" />
