@@ -97,19 +97,22 @@ func (m *Manager) Delete(id int64) error {
 func (m *Manager) Match(requestPath string) (targetURL string, routeName string, ok bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
+
+	// First pass: exact matches only (highest priority)
 	for _, rule := range m.rules {
-		switch rule.Type {
-		case "exact":
-			if requestPath == rule.Path {
-				return rule.TargetURL, rule.Name, true
-			}
-		case "prefix":
-			if strings.HasPrefix(requestPath, rule.Path) {
-				suffix := strings.TrimPrefix(requestPath, rule.Path)
-				return strings.TrimRight(rule.TargetURL, "/") + "/" + strings.TrimLeft(suffix, "/"), rule.Name, true
-			}
+		if rule.Type == "exact" && requestPath == rule.Path {
+			return rule.TargetURL, rule.Name, true
 		}
 	}
+
+	// Second pass: prefix matches
+	for _, rule := range m.rules {
+		if rule.Type == "prefix" && strings.HasPrefix(requestPath, rule.Path) {
+			suffix := strings.TrimPrefix(requestPath, rule.Path)
+			return strings.TrimRight(rule.TargetURL, "/") + "/" + strings.TrimLeft(suffix, "/"), rule.Name, true
+		}
+	}
+
 	return "", "", false
 }
 
