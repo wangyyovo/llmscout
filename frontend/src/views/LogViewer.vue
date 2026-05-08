@@ -11,6 +11,7 @@ const page = ref(1)
 const pageSize = ref(20)
 const autoRefresh = ref(false)
 const refreshInterval = ref(3)
+const showRaw = ref(false)
 const detailLog = ref(null)
 const showDetail = ref(false)
 
@@ -113,7 +114,6 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   <div>
     <h2 style="color: var(--text-primary); margin-bottom: 16px;">📋 请求日志</h2>
 
-    <!-- Filters -->
     <div style="display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;">
       <n-input v-model:value="keyword" placeholder="🔍 搜索关键词..." clearable style="width: 180px;" @keyup.enter="search" />
       <n-select v-model:value="routeName" :options="routeOptions" style="width: 130px;" @update:value="search" />
@@ -127,7 +127,6 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       </span>
     </div>
 
-    <!-- Table -->
     <div style="background: var(--bg-card); border-radius: 8px; overflow: hidden;">
       <n-table :single-line="false" style="background: transparent;">
         <thead>
@@ -158,7 +157,6 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       </n-table>
     </div>
 
-    <!-- Pagination -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
       <div style="color: var(--text-secondary); font-size: 12px;">
         每页 <n-select v-model:value="pageSize" :options="[{label:'20',value:20},{label:'50',value:50},{label:'100',value:100}]" style="width: 70px; display: inline-block;" @update:value="load" /> 条
@@ -171,21 +169,14 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       />
     </div>
 
-    <!-- Detail Modal -->
     <n-modal v-model:show="showDetail" preset="card" title="请求详情" style="max-width: 860px;" :segmented="{ content: true }">
       <template v-if="detailLog">
         <n-tabs type="line">
-          <n-tab-pane name="parsedReq" tab="📖 请求解析">
-            <llm-message-viewer :data="detailLog.reqBody" mode="request" />
+          <n-tab-pane name="req" tab="📤 请求">
+            <llm-message-viewer :data="detailLog.reqBody" mode="request" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
           </n-tab-pane>
-          <n-tab-pane name="parsedResp" tab="📖 响应解析">
-            <llm-message-viewer :data="detailLog.respBody" mode="response" />
-          </n-tab-pane>
-          <n-tab-pane name="reqBody" tab="原始请求体">
-            <json-viewer :data="detailLog.reqBody" />
-          </n-tab-pane>
-          <n-tab-pane name="respBody" tab="原始响应体">
-            <json-viewer :data="detailLog.respBody" />
+          <n-tab-pane name="resp" tab="📥 响应">
+            <llm-message-viewer :data="detailLog.respBody" mode="response" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
           </n-tab-pane>
           <n-tab-pane name="reqHeaders" tab="请求头">
             <json-viewer :data="detailLog.reqHeaders" />
