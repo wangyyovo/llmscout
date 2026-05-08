@@ -52,6 +52,30 @@ const hasLLMContent = computed(() => {
   return messages.value || tools.value
 })
 
+// Detect if content is HTML and format it with proper indentation
+function formatHtml(text) {
+  if (!text) return null
+  // Only detect as HTML if there are structural block-level tags
+  if (!/<\/?(html|div|table|tr|td|th|tbody|thead|ul|ol|li|p|h[1-6]|span|section|article|header|footer|main|nav|form|input|select|option|button|a|img|pre|code|blockquote|dl|dt|dd)[\s>]/i.test(text)) return null
+  let indent = 0
+  const lines = []
+  const tagRegex = /(<\/?[\w-]+(?:\s[^>]*)?>)|([^<]+)/g
+  let match
+  while ((match = tagRegex.exec(text)) !== null) {
+    if (match[2]) {
+      const trimmed = match[2].trim()
+      if (trimmed) lines.push('  '.repeat(indent) + trimmed)
+    } else if (match[1]) {
+      const isClosing = match[1].startsWith('</')
+      const isSelfClosing = match[1].endsWith('/>')
+      if (isClosing) indent = Math.max(0, indent - 1)
+      lines.push('  '.repeat(indent) + match[1])
+      if (!isClosing && !isSelfClosing) indent++
+    }
+  }
+  return lines.filter(l => l.trim()).join('\n')
+}
+
 const roleColors = {
   system: 'info',
   user: 'primary',
@@ -100,7 +124,13 @@ const roleColors = {
             {{ msg.reasoning_content }}
           </div>
 
-          <markdown-renderer v-if="msg.content" :content="msg.content" />
+          <template v-if="msg.content">
+            <div v-if="formatHtml(msg.content)" style="margin-bottom: 4px;">
+              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;">📄 HTML 输出</div>
+              <pre style="background: var(--bg-code); border-radius: 4px; padding: 10px 12px; font-size: 12px; line-height: 1.5; overflow-x: auto; color: var(--text-primary); white-space: pre; tab-size: 2;"><code>{{ formatHtml(msg.content) }}</code></pre>
+            </div>
+            <markdown-renderer v-else :content="msg.content" />
+          </template>
           <div v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</div>
 
           <div v-if="msg.tool_calls && msg.tool_calls.length" style="margin-top: 8px;">
