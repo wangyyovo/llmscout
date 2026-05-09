@@ -268,7 +268,9 @@ const roleColors = {
         </n-collapse>
       </div>
 
-      <div v-if="!parsed && data" style="color: var(--text-muted); text-align: center; padding: 20px;">无法解析 JSON</div>
+      <div v-if="!parsed && data">
+        <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--text-primary); white-space: pre-wrap;">{{ data }}</pre>
+      </div>
     </template>
   </div>
 </template>
