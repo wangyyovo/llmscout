@@ -325,7 +325,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .table-container {
   background: var(--bg-card);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: auto hidden;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
 }
@@ -381,6 +381,54 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .col-route { width: 76px; }
 .col-latency { width: 66px; }
 .col-time { width: 150px; white-space: nowrap; }
+
+/* Frozen columns */
+.col-cb,
+.col-time {
+  position: sticky;
+  z-index: 2;
+}
+.col-cb { left: 0; }
+.col-time { right: 0; }
+
+.table-head-row .col-cb,
+.table-head-row .col-time {
+  background: var(--bg-hover);
+  z-index: 3;
+}
+.table-row .col-cb,
+.table-row .col-time {
+  background: var(--bg-card);
+}
+.table-row:hover .col-cb,
+.table-row:hover .col-time {
+  background: var(--bg-hover);
+}
+
+/* Right border on frozen left column for visual separation */
+.table-head-row .col-cb::after,
+.table-row .col-cb::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 1px;
+  background: var(--border-color);
+}
+/* Left border on frozen right column */
+.table-head-row .col-time::after,
+.table-row .col-time::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 1px;
+  background: var(--border-color);
+}
+
+/* Ensure td/th support pseudo-elements */
+.table-head-row th,
+.table-row td {
+  position: relative;
+}
 
 /* Cell text styles */
 .cell-muted { color: var(--text-muted); }
