@@ -18,7 +18,10 @@ onMounted(() => {
         const url = target.getAttribute('href')
         if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:'))) {
           e.preventDefault()
-          try { window.runtime.BrowserOpenURL(url) } catch { window.open(url, '_blank') }
+          const w = window.open(url, '_blank')
+          if (!w || w.closed) {
+            try { window.runtime.BrowserOpenURL(url) } catch { /* fallback */ }
+          }
         }
         return
       }
