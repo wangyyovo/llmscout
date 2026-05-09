@@ -93,8 +93,8 @@ const messages = computed(() => {
           else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
           else texts.push(JSON.stringify(b))
         }
-        msg.content = texts.join('\n')
-        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.join('\n')
+        msg.content = texts.filter(t => t != null && t !== '').join('\n\n')
+        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => t).join('\n\n')
       }
       msgs.push(msg)
     }
@@ -120,8 +120,8 @@ const messages = computed(() => {
       else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
       else texts.push(JSON.stringify(b))
     }
-    const msg = { role: parsed.value.role, content: texts.join('\n') }
-    if (reasoning.length) msg.reasoning_content = reasoning.join('\n')
+    const msg = { role: parsed.value.role, content: texts.filter(t => t != null && t !== '').join('\n\n') }
+    if (reasoning.length) msg.reasoning_content = reasoning.filter(t => t).join('\n\n')
     if (parsed.value.stop_reason) msg.stop_reason = parsed.value.stop_reason
     return [msg]
   }
@@ -208,9 +208,9 @@ function formatHtml(text) {
 // Handle content that may be string, array (Anthropic format), or other
 function toTextContent(content) {
   if (!content) return ''
-  if (typeof content === 'string') return content
+  if (typeof content === 'string') return content.trim()
   if (Array.isArray(content)) {
-    return content.filter(c => c.type === 'text').map(c => c.text).join('\n')
+    return content.filter(c => c.type === 'text').map(c => (c.text || '').trim()).filter(t => t).join('\n\n')
   }
   return JSON.stringify(content)
 }
