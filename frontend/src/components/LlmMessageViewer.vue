@@ -232,16 +232,19 @@ function summaryText(msg) {
   return t.length > 60 ? t.slice(0, 60) + '...' : t
 }
 
+function isToolError(msg) {
+  if (!msg.content) return false
+  const c = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+  return c.toLowerCase().includes('error')
+}
+
 function isFailed(msg, tc) {
   // Anthropic: check tool_results in same message
   if (msg.tool_results && msg.tool_results.some(tr => tr.id === tc.id && tr.isError)) return true
   // OpenAI: check across all messages for error tool responses
   if (messages.value) {
     for (const m of messages.value) {
-      if (m.role === 'tool' && m.tool_call_id === tc.id) {
-        const c = typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
-        if (c.toLowerCase().includes('error')) return true
-      }
+      if (m.role === 'tool' && m.tool_call_id === tc.id && isToolError(m)) return true
     }
   }
   return false
@@ -309,7 +312,7 @@ const roleColors = {
         <details
           v-for="(msg, i) in messages" :key="i"
           style="background: var(--bg-message); border-radius: 8px; border-left: 3px solid transparent;"
-          :style="{ borderLeftColor: msg.role === 'user' ? '#89b4fa' : msg.role === 'assistant' ? '#a6e3a1' : msg.role === 'system' ? '#cba6f7' : '#fab387' }"
+          :style="{ borderLeftColor: (msg.role === 'tool' && isToolError(msg)) ? '#f38ba8' : msg.role === 'user' ? '#89b4fa' : msg.role === 'assistant' ? '#a6e3a1' : msg.role === 'system' ? '#cba6f7' : '#fab387' }"
         >
           <summary style="padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none;">
             <n-tag :type="roleColors[msg.role] || 'default'" size="small">{{ msg.role || 'unknown' }}</n-tag>
