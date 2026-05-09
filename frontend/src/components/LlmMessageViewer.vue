@@ -93,8 +93,8 @@ const messages = computed(() => {
           else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
           else texts.push(JSON.stringify(b))
         }
-        msg.content = texts.filter(t => t != null && t !== '').join('\n\n')
-        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => t).join('\n\n')
+        msg.content = texts.filter(t => t != null && ('' + t).trim()).join('\n')
+        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).join('\n')
       }
       msgs.push(msg)
     }
@@ -120,8 +120,8 @@ const messages = computed(() => {
       else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
       else texts.push(JSON.stringify(b))
     }
-    const msg = { role: parsed.value.role, content: texts.filter(t => t != null && t !== '').join('\n\n') }
-    if (reasoning.length) msg.reasoning_content = reasoning.filter(t => t).join('\n\n')
+    const msg = { role: parsed.value.role, content: texts.filter(t => t != null && ('' + t).trim()).join('\n') }
+    if (reasoning.length) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).join('\n')
     if (parsed.value.stop_reason) msg.stop_reason = parsed.value.stop_reason
     return [msg]
   }
@@ -210,7 +210,7 @@ function toTextContent(content) {
   if (!content) return ''
   if (typeof content === 'string') return content.trim()
   if (Array.isArray(content)) {
-    return content.filter(c => c.type === 'text').map(c => (c.text || '').trim()).filter(t => t).join('\n\n')
+    return content.filter(c => c.type === 'text').map(c => (c.text || '').trim()).filter(t => t).join('\n')
   }
   return JSON.stringify(content)
 }
