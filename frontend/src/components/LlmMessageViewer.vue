@@ -1,8 +1,5 @@
 <script setup>
-import { computed, ref, onErrorCaptured } from 'vue'
-
-const renderError = ref(false)
-onErrorCaptured(() => { renderError.value = true; return false })
+import { computed } from 'vue'
 import { NCollapse, NCollapseItem, NTag, NButton } from 'naive-ui'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
@@ -16,11 +13,18 @@ const emit = defineEmits(['update:showRaw'])
 
 const parsed = computed(() => {
   if (!props.data) return null
-  try {
-    return JSON.parse(props.data)
-  } catch {
-    return null
+  // Try direct JSON parse
+  try { return JSON.parse(props.data) } catch { /* continue */ }
+  // Handle SSE raw text: extract all data lines and try to parse the last non-[DONE] event
+  if (props.data.includes('data:')) {
+    const lines = props.data.split('\n').filter(l => l.startsWith('data:'))
+    const jsons = lines.map(l => l.slice(5).trim()).filter(s => s && s !== '[DONE]')
+    // Try parsing the first valid JSON event
+    for (const j of jsons) {
+      try { return JSON.parse(j) } catch { /* skip */ }
+    }
   }
+  return null
 })
 
 const modelInfo = computed(() => {
@@ -31,11 +35,18 @@ const modelInfo = computed(() => {
 
 const messages = computed(() => {
   if (!parsed.value) return null
+  // Request format: { messages: [...] }
   if (parsed.value.messages) return parsed.value.messages
+  // OpenAI response format: { choices: [{ message: {...} }] }
   if (parsed.value.choices) {
-    return parsed.value.choices
-      .filter(c => c.message)
-      .map(c => c.message)
+    const msgs = []
+    for (const c of parsed.value.choices) {
+      if (c.message) msgs.push(c.message)
+      // Streaming: choices with delta
+      else if (c.delta && c.delta.content) msgs.push({ role: c.delta.role || 'assistant', content: c.delta.content })
+      else if (c.delta && c.delta.reasoning_content) msgs.push({ role: 'assistant', reasoning_content: c.delta.reasoning_content })
+    }
+    if (msgs.length > 0) return msgs
   }
   return null
 })
@@ -112,10 +123,7 @@ const roleColors = {
 </script>
 
 <template>
-  <div v-if="renderError">
-    <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px; font-size: 12px; color: var(--text-primary); white-space: pre-wrap;">{{ data || '（无数据）' }}</pre>
-  </div>
-  <div v-else>
+  <div>
     <!-- Model info row + raw toggle -->
     <div v-if="hasLLMContent" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
       <n-tag v-if="modelInfo" size="small" type="primary">{{ modelInfo }}</n-tag>
