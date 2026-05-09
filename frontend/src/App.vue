@@ -2,7 +2,6 @@
 import { ref, shallowRef, h, computed, onMounted } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
-import { BrowserOpenURL } from '../../wailsjs/runtime/runtime.js'
 import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
 import LogViewer from './views/LogViewer.vue'
@@ -10,7 +9,7 @@ import SettingsPanel from './views/SettingsPanel.vue'
 
 const { naiveTheme, themeClass } = useTheme()
 
-// Open external links in system browser
+// Open external links in system browser via Wails runtime
 onMounted(() => {
   document.addEventListener('click', (e) => {
     let target = e.target
@@ -19,7 +18,7 @@ onMounted(() => {
         const url = target.getAttribute('href')
         if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:'))) {
           e.preventDefault()
-          BrowserOpenURL(url)
+          try { window.runtime.BrowserOpenURL(url) } catch { /* runtime not ready */ }
         }
         return
       }
