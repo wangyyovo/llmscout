@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Wails v2** desktop application — Go backend + Vue 3 frontend bundled into a native desktop app. The project was scaffolded from `wails-template-naive` and has not yet been customized beyond the template (the window title and module name are still `"projectname"`).
+**LLM Scout** — a desktop LLM debugging proxy built with Wails v2. Captures and forwards API requests to LLM providers, records full request/response payloads, and provides a visual log viewer with instant replay capabilities.
 
-- **Backend**: Go 1.22 (`go.mod` root)
+- **Backend**: Go 1.25 (`go.mod` root, module `github.com/llmscout/llmscout`)
 - **Frontend**: Vue 3 + NaiveUI + Vite 5 (`frontend/`)
 - **Desktop framework**: Wails v2.12.0
 
@@ -29,72 +29,75 @@ npm run preview    # Preview the frontend production build locally
 
 ```bash
 wails build                          # Production build for current OS/arch
-wails build --clean                  # Clean build
 wails build --clean --platform windows/amd64   # Windows AMD64
 wails build --clean --platform darwin/universal # macOS universal
 wails build --clean --platform darwin/arm64     # macOS Apple Silicon
 ```
 
-The `scripts/` directory contains platform-specific wrapper scripts that run `wails build --clean` with the appropriate `--platform` flag.
+## Architecture
 
-### Installing Wails CLI
+### Backend (Go)
 
-```bash
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
+internal/
+  route/        RouteManager — CRUD + path matching (prefix/exact rules)
+  proxy/        ProxyEngine  — HTTP forwarding with SSE streaming support
+  log/          LogService   — async channel-based logging + query/filter/paginate
+  storage/      SQLite (modernc.org/sqlite, CGO-free)
 ```
 
-## Architecture
+**Database location**: `./data/llmscout.db` (relative to app working directory) with WAL mode.
 
 ### Wails Binding Pattern
 
-The Go backend exposes methods to the frontend via Wails' `Bind` mechanism. Any method on a struct listed in `Bind` in `main.go` is callable from JavaScript.
+Go methods on `App` struct in `app.go` are exposed to the frontend via Wails Bind. The `frontend/wailsjs/` directory is auto-generated — never edit it manually.
 
-```
-main.go:
-  Bind: []interface{}{app}  →  makes App struct methods callable from frontend
+**Key constraint**: Wails v2 Bind cannot serialize `time.Time`. All timestamp fields exposed to the frontend use `int64` (UnixMilli).
 
-app.go:
-  App.Greet(name string) string  →  exposed to frontend
+### Key Backend Methods
 
-frontend:
-  import {Greet} from '../../wailsjs/go/main/App'
-  Greet(data.name).then(result => { ... })
-```
-
-The `frontend/wailsjs/` directory is **auto-generated** by Wails at build time — do not edit it manually.
-
-### Adding a New Backend Method
-
-1. Add a method to `App` (or a new struct) in `app.go`
-2. If using a new struct, add it to the `Bind` slice in `main.go`
-3. Wails regenerates the JS bridge in `frontend/wailsjs/` on next build
-4. Import and call it from a Vue component
+| Category | Methods |
+|----------|---------|
+| Route | `ListRoutes`, `AddRoute`, `UpdateRoute`, `DeleteRoute` |
+| Proxy | `StartProxy`, `StopProxy`, `ProxyStatus` |
+| Log | `QueryLogs`, `GetLog`, `ClearLogs`, `DeleteLogs`, `GetLogRouteNames` |
+| Settings | `GetSetting`, `SetSetting`, `GetDbPath` |
 
 ### Frontend Structure
 
-- **`frontend/src/main.js`** — Vue app bootstrap, registers NaiveUI plugin
-- **`frontend/src/App.vue`** — Root component with `<n-message-provider>`, grid layout with logos, includes `<HelloWorld/>`
-- **`frontend/src/components/`** — Vue components using `<script setup>` composition API
-- **`frontend/vite.config.js`** — Minimal Vite config with Vue plugin only
-- **`frontend/index.html`** — HTML entry point
+```
+frontend/src/
+  App.vue                    — Root: sidebar layout + NConfigProvider theme
+  main.js                    — Bootstrap, naive-ui global registration
+  composables/
+    useTheme.js              — dark/light/system theme with CSS variables
+  views/
+    ProxyPanel.vue           — Proxy start/stop, port, stats
+    RoutePanel.vue           — Route rules CRUD
+    LogViewer.vue            — Log table + detail modal
+    SettingsPanel.vue        — Theme toggle, DB path, clear logs
+  components/
+    LlmMessageViewer.vue     — LLM message parser (OpenAI + Anthropic)
+    MarkdownRenderer.vue     — markdown-it rendering
+    JsonViewer.vue           — Pretty-print JSON with copy
+    HeadersViewer.vue        — Key-value header display with masking
+```
 
-### App Lifecycle Hooks
+### Theme System
 
-Defined in `main.go` → `app.go`:
+CSS variables defined in `App.vue` for both dark/light themes:
+`--bg-main`, `--bg-card`, `--bg-code`, `--bg-message`, `--bg-hover`,
+`--border-color`, `--text-primary`, `--text-secondary`, `--text-muted`, `--accent`
 
-| Hook | When | Purpose |
-|------|------|---------|
-| `startup(ctx)` | App launches, before frontend loads | One-time setup, DB connections, etc. |
-| `domReady(ctx)` | Frontend DOM is fully loaded | Post-render initialization |
-| `beforeClose(ctx)` | User clicks close / `runtime.Quit` | Return `true` to prevent closing |
-| `shutdown(ctx)` | App is terminating | Cleanup, close connections |
+Theme persistence via `SetSetting('theme', ...)`.
 
-### No Existing Infrastructure
+### LLM Protocol Support
 
-The project currently has no tests, no linting, no CI/CD, no Docker, no environment variable configuration, and no TypeScript. These would need to be added from scratch.
-
-## Go Module
-
-- Module path: `projectname` (defined in `go.mod`)
-- Primary dependency: `github.com/wailsapp/wails/v2 v2.12.0`
-- Go embed directives in `main.go` bundle `frontend/dist` and `build/appicon.png` into the binary
+The `LlmMessageViewer` parses both **OpenAI** and **Anthropic (Claude)** formats:
+- Messages with role + content display
+- `reasoning_content` / `thinking` blocks shown before content
+- Tool definitions (`tools`), tool calls (`tool_calls`), tool results (`tool_results`)
+- SSE streaming content extraction (OpenAI + Anthropic delta events)
+- Error detection for failed tool calls (JSON field check + word-boundary patterns)
+- HTML content detection with DOM tree indentation
+- Markdown rendering via markdown-it
