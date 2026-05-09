@@ -60,7 +60,7 @@ onMounted(load)
   <div>
     <div class="page-header">
       <h2 class="page-title">路由规则</h2>
-      <n-button type="primary" @click="openAdd" :border-radius="6">
+      <n-button type="primary" @click="openAdd">
         <template #icon><n-icon :size="16"><AddOutline /></n-icon></template>
         添加路由
       </n-button>
@@ -84,7 +84,7 @@ onMounted(load)
             <span class="route-name">{{ rule.name }}</span>
           </div>
           <div class="route-actions">
-            <n-button quaternary size="small" @click="openEdit(rule)" class="action-btn edit-btn">
+            <n-button quaternary size="small" @click="openEdit(rule)" class="action-btn">
               <template #icon><n-icon size="15"><CreateOutline /></n-icon></template>
             </n-button>
             <n-button quaternary size="small" @click="remove(rule.id)" class="action-btn del-btn">
@@ -121,7 +121,7 @@ onMounted(load)
           <label class="form-label">目标域名</label>
           <n-input v-model:value="form.targetUrl" placeholder="如 api.openai.com" />
         </div>
-        <n-button type="primary" @click="save" block :border-radius="6">保存</n-button>
+        <n-button type="primary" @click="save" block>保存</n-button>
       </n-space>
     </n-modal>
   </div>
@@ -140,7 +140,9 @@ onMounted(load)
   border-left: 3px solid var(--accent) !important;
   transition: all var(--transition);
   box-shadow: var(--shadow-sm);
+  padding: 0 !important;
 }
+:deep(.route-card .n-card__content) { padding: 16px 20px; }
 .route-card:hover {
   box-shadow: var(--shadow);
   transform: translateX(2px);
@@ -162,18 +164,19 @@ onMounted(load)
 .route-path {
   color: var(--text-primary);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', monospace;
 }
-.route-arrow {
-  flex-shrink: 0;
-}
+.route-arrow { flex-shrink: 0; }
 .route-target {
   color: var(--accent-success);
   font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
 }
 .route-name {
   color: var(--text-muted);
   font-size: 11px;
+  font-weight: 500;
   background: var(--bg-hover);
   padding: 2px 8px;
   border-radius: 10px;
@@ -184,25 +187,23 @@ onMounted(load)
   flex-shrink: 0;
 }
 .action-btn {
-  opacity: 0.5;
+  opacity: 0.45;
   transition: opacity var(--transition);
 }
 .action-btn:hover { opacity: 1; }
+.del-btn:hover :deep(.n-icon) { color: var(--accent-error) !important; }
 
 /* Empty state */
 .empty-state {
   text-align: center;
-  padding: 48px 20px;
+  padding: 56px 20px;
 }
-.empty-icon {
-  margin-bottom: 12px;
-  opacity: 0.4;
-}
+.empty-icon { margin-bottom: 14px; opacity: 0.35; }
 .empty-title {
   color: var(--text-secondary);
   font-size: 15px;
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 .empty-desc {
   color: var(--text-muted);
@@ -210,13 +211,11 @@ onMounted(load)
 }
 
 /* Modal form */
-.route-modal {
-  max-width: 480px;
-}
+.route-modal { max-width: 480px; }
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 .form-label {
   font-size: 13px;

@@ -41,10 +41,35 @@ const layoutStyle = computed(() => ({
   background: 'var(--bg-main)',
   color: 'var(--text-primary)'
 }))
+
+// Shared NaiveUI theme overrides for consistent control sizing
+const themeOverrides = {
+  common: {
+    fontSize: '13px',
+    fontSizeSmall: '12px',
+    fontSizeTiny: '11px',
+    borderRadius: '6px',
+    borderRadiusSmall: '4px',
+  },
+  Input: { height: '34px', fontSize: '13px' },
+  Select: { peers: { InternalSelection: { height: '34px', fontSize: '13px' } } },
+  Button: {
+    heightSmall: '30px',
+    heightMedium: '34px',
+    heightLarge: '40px',
+    fontSizeSmall: '12px',
+    fontSizeMedium: '13px',
+    fontSizeLarge: '15px',
+    borderRadius: '6px',
+  },
+  Tag: { borderRadius: '4px' },
+  Card: { borderRadius: '10px', padding: '20px' },
+  Switch: { railHeight: '18px', railWidth: '32px', buttonHeight: '14px', buttonWidth: '14px' },
+}
 </script>
 
 <template>
-  <n-config-provider :theme="naiveTheme" :class="themeClass">
+  <n-config-provider :theme="naiveTheme" :theme-overrides="themeOverrides" :class="themeClass">
     <n-message-provider>
       <n-layout has-sider position="absolute" style="height: 100vh;">
         <n-layout-sider

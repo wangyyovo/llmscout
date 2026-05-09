@@ -154,34 +154,38 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     <div class="page-header">
       <h2 class="page-title">请求日志</h2>
       <div class="header-actions">
-        <n-button quaternary size="small" @click="load" class="refresh-btn">
-          <template #icon><n-icon size="16"><RefreshOutline /></n-icon></template>
+        <n-button quaternary size="small" @click="load">
+          <template #icon><n-icon size="17"><RefreshOutline /></n-icon></template>
         </n-button>
       </div>
     </div>
 
     <div class="filter-bar">
-      <n-input v-model:value="keyword" placeholder="搜索关键词..." clearable class="filter-input" @keyup.enter="search">
-        <template #prefix><n-icon size="14" color="var(--text-muted)"><SearchOutline /></n-icon></template>
-      </n-input>
-      <n-select v-model:value="routeName" :options="routeOptions" class="filter-select" @update:value="search" />
-      <n-select v-model:value="statusCode" :options="statusOptions" class="filter-select-sm" @update:value="search" />
-      <n-select v-model:value="protocol" :options="protocolOptions" class="filter-select-sm" @update:value="search" />
-      <n-button type="primary" size="small" @click="search" class="search-btn">
-        <template #icon><n-icon size="14"><SearchOutline /></n-icon></template>
-        搜索
-      </n-button>
-      <span class="auto-refresh">
+      <div class="filter-group">
+        <n-input v-model:value="keyword" placeholder="搜索关键词..." clearable class="filter-input" @keyup.enter="search">
+          <template #prefix><n-icon size="14" color="var(--text-muted)"><SearchOutline /></n-icon></template>
+        </n-input>
+        <n-button type="primary" size="small" @click="search">
+          <template #icon><n-icon size="14"><SearchOutline /></n-icon></template>
+          搜索
+        </n-button>
+      </div>
+      <div class="filter-group">
+        <n-select v-model:value="routeName" :options="routeOptions" class="filter-select" @update:value="search" />
+        <n-select v-model:value="statusCode" :options="statusOptions" class="filter-select-sm" @update:value="search" />
+        <n-select v-model:value="protocol" :options="protocolOptions" class="filter-select-sm" @update:value="search" />
+      </div>
+      <div class="filter-group auto-group">
         <span class="auto-label">自动刷新</span>
         <n-switch v-model:value="autoRefresh" @update:value="toggleAuto" size="small" />
-        <n-select v-model:value="refreshInterval" :options="[{label:'3 秒',value:3},{label:'5 秒',value:5},{label:'10 秒',value:10}]" class="interval-select" size="small" />
-      </span>
+        <n-select v-model:value="refreshInterval" :options="[{label:'3s',value:3},{label:'5s',value:5},{label:'10s',value:10}]" class="interval-select" size="small" />
+      </div>
     </div>
 
     <div class="table-container">
       <div v-if="selectedIds.length > 0" class="batch-bar">
         <span class="batch-info">已选 {{ selectedIds.length }} 条</span>
-        <n-button size="tiny" type="error" @click="deleteSelected" :border-radius="4">
+        <n-button size="tiny" type="error" @click="deleteSelected">
           <template #icon><n-icon size="12"><TrashOutline /></n-icon></template>
           删除选中
         </n-button>
@@ -221,7 +225,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td class="col-target cell-ellipsis" :title="log.targetUrl">
               <code class="target-code">{{ log.targetUrl || '-' }}</code>
             </td>
-            <td class="col-time cell-secondary">{{ formatTime(log.createdAt) }}</td>
+            <td class="col-time cell-secondary cell-mono">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
             <td colspan="10" class="empty-row">暂无日志记录</td>
@@ -241,6 +245,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
           @update:value="load"
         />
         <span class="page-size-label">条</span>
+        <span class="page-size-label" style="margin-left: 8px;">共 {{ total }} 条</span>
       </div>
       <n-pagination
         v-model:page="page"
@@ -280,33 +285,33 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   align-items: center;
   gap: 6px;
 }
-.refresh-btn {
-  font-size: 16px;
-}
 
 /* Filter bar */
 .filter-bar {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
   align-items: center;
   flex-wrap: wrap;
 }
-.filter-input { width: 200px; }
-.filter-select { width: 140px; }
-.filter-select-sm { width: 110px; }
-.search-btn { border-radius: var(--radius-sm); }
-.auto-refresh {
-  margin-left: auto;
+.filter-group {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 6px;
+}
+.filter-input { width: 200px; }
+.filter-select { width: 150px; }
+.filter-select-sm { width: 110px; }
+.auto-group {
+  margin-left: auto;
+  padding: 0 4px;
 }
 .auto-label {
   color: var(--text-muted);
   font-size: 12px;
+  white-space: nowrap;
 }
-.interval-select { width: 76px; }
+.interval-select { width: 72px; }
 
 /* Table container */
 .table-container {
@@ -314,6 +319,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 /* Batch bar */
@@ -328,55 +334,50 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .batch-info {
   color: var(--text-secondary);
   font-size: 12px;
+  font-weight: 500;
 }
 
 /* Table */
-.log-table {
-  background: transparent;
-}
-:deep(.log-table .n-table-header) {
-  background: transparent;
-}
-.table-head-row {
-  background: var(--bg-hover) !important;
-}
+.log-table { background: transparent; }
+
+.table-head-row { background: var(--bg-hover) !important; }
 .table-head-row th {
-  padding: 10px 12px;
-  font-size: 12px;
+  padding: 10px 14px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.4px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .table-row {
   cursor: pointer;
   transition: background var(--transition);
+}
+.table-row td {
+  padding: 10px 14px;
+  font-size: 13px;
   border-bottom: 1px solid var(--border-color);
 }
-.table-row:last-child { border-bottom: none; }
-.table-row:hover { background: var(--bg-hover) !important; }
+.table-row:last-child td { border-bottom: none; }
+.table-row:hover td { background: var(--bg-hover) !important; }
 
-.table-row td {
-  padding: 9px 12px;
-  font-size: 13px;
-}
-
-/* Cell styles */
+/* Cell widths */
 .col-cb { width: 36px; text-align: center; }
-.col-id { width: 56px; }
+.col-id { width: 50px; }
 .col-proto { width: 60px; }
 .col-method { width: 54px; }
 .col-status { width: 56px; }
 .col-route { width: 76px; }
 .col-latency { width: 66px; }
 .col-time { width: 150px; white-space: nowrap; }
-.col-url, .col-target { min-width: 180px; max-width: 280px; }
 
+/* Cell text styles */
 .cell-muted { color: var(--text-muted); }
 .cell-mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
-.cell-accent { color: var(--accent); font-weight: 500; }
+.cell-accent { color: var(--accent); font-weight: 600; font-size: 12px; }
 .cell-primary { color: var(--text-primary); font-size: 13px; }
 .cell-secondary { color: var(--text-secondary); font-size: 12px; }
 
@@ -384,16 +385,15 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 280px;
 }
 .url-code {
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 12px;
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
 .target-code {
   color: var(--accent-success);
-  font-size: 11px;
+  font-size: 12px;
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
@@ -405,7 +405,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .empty-row {
   text-align: center;
   color: var(--text-muted);
-  padding: 40px 12px !important;
+  padding: 40px 14px !important;
   font-size: 13px;
 }
 
@@ -419,7 +419,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .page-size {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 .page-size-label {
   color: var(--text-muted);
@@ -428,7 +428,5 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .page-size-select { width: 72px; }
 
 /* Detail modal */
-.detail-modal {
-  max-width: 860px;
-}
+.detail-modal { max-width: 860px; }
 </style>

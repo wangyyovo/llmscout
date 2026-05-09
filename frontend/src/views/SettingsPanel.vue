@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { NButton, NCard, NSpace, NRadio, NRadioGroup, NIcon, useMessage } from 'naive-ui'
+import { NButton, NCard, NRadio, NRadioGroup, NIcon, useMessage } from 'naive-ui'
 import { TrashOutline, MoonOutline, SunnyOutline, DesktopOutline, FolderOpenOutline } from '@vicons/ionicons5'
-import { GetSetting, SetSetting, ClearLogs, GetDbPath } from '../../wailsjs/go/main/App'
+import { ClearLogs, GetDbPath } from '../../wailsjs/go/main/App'
 import { useThemeInject } from '../composables/useTheme.js'
 
 const message = useMessage()
@@ -25,10 +25,18 @@ async function handleClear() {
 
     <div class="settings-grid">
       <n-card class="settings-card" :bordered="false">
+        <!-- Theme section -->
         <div class="card-section">
           <div class="section-header">
-            <n-icon size="18" :color="mode === 'dark' ? '#f5a97f' : '#f08c42'"><MoonOutline v-if="mode === 'dark'" /><SunnyOutline v-else-if="mode === 'light'" /><DesktopOutline v-else /></n-icon>
-            <span class="section-title">外观主题</span>
+            <div class="section-icon" :style="{ background: mode === 'dark' ? 'rgba(245,169,127,0.1)' : 'rgba(240,140,66,0.1)' }">
+              <n-icon size="18" :color="mode === 'dark' ? 'var(--accent-warning)' : '#f08c42'">
+                <MoonOutline v-if="mode === 'dark'" /><SunnyOutline v-else-if="mode === 'light'" /><DesktopOutline v-else />
+              </n-icon>
+            </div>
+            <div>
+              <div class="section-title">外观主题</div>
+              <div class="section-desc">切换浅色/深色模式，或跟随系统设置</div>
+            </div>
           </div>
           <n-radio-group :value="mode" @update:value="setMode" class="theme-radios">
             <n-radio value="light" class="radio-item">
@@ -51,10 +59,16 @@ async function handleClear() {
 
         <div class="section-divider" />
 
+        <!-- DB section -->
         <div class="card-section">
           <div class="section-header">
-            <n-icon size="18" color="var(--accent)"><FolderOpenOutline /></n-icon>
-            <span class="section-title">数据存储</span>
+            <div class="section-icon" style="background:rgba(124,140,248,0.1);">
+              <n-icon size="18" color="var(--accent)"><FolderOpenOutline /></n-icon>
+            </div>
+            <div>
+              <div class="section-title">数据存储</div>
+              <div class="section-desc">SQLite 数据库文件存放位置</div>
+            </div>
           </div>
           <div class="db-path">
             <code class="db-path-text">{{ dbPath }}</code>
@@ -63,13 +77,18 @@ async function handleClear() {
 
         <div class="section-divider" />
 
-        <div class="card-section">
+        <!-- Danger zone -->
+        <div class="card-section danger-section">
           <div class="section-header">
-            <n-icon size="18" color="var(--accent-error)"><TrashOutline /></n-icon>
-            <span class="section-title">危险操作</span>
+            <div class="section-icon" style="background:rgba(243,139,168,0.1);">
+              <n-icon size="18" color="var(--accent-error)"><TrashOutline /></n-icon>
+            </div>
+            <div>
+              <div class="section-title">危险操作</div>
+              <div class="section-desc">清空后将不可恢复，请谨慎操作</div>
+            </div>
           </div>
-          <p class="danger-desc">清空后将不可恢复</p>
-          <n-button type="error" @click="handleClear" :border-radius="6" secondary>
+          <n-button type="error" @click="handleClear" secondary>
             <template #icon><n-icon size="16"><TrashOutline /></n-icon></template>
             清空所有日志
           </n-button>
@@ -80,19 +99,20 @@ async function handleClear() {
 </template>
 
 <style scoped>
-.settings-grid {
-  max-width: 560px;
-}
+.settings-grid { max-width: 560px; }
 
 .settings-card {
   background: var(--bg-card) !important;
   border-radius: var(--radius) !important;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  padding: 0 !important;
 }
+:deep(.settings-card .n-card__content) { padding: 0; }
 
-.card-section {
-  padding: 20px 24px;
+.card-section { padding: 22px 24px; }
+.danger-section {
+  background: rgba(243,139,168,0.03);
 }
 
 .section-divider {
@@ -103,14 +123,28 @@ async function handleClear() {
 
 .section-header {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
+  justify-content: center;
+  flex-shrink: 0;
 }
 .section-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.3;
+}
+.section-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 /* Theme radios */
@@ -118,15 +152,14 @@ async function handleClear() {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-left: 48px;
 }
-.radio-item {
-  padding: 4px 0;
-}
+.radio-item { padding: 3px 0; }
 .radio-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
+  gap: 7px;
+  font-size: 13px;
   color: var(--text-primary);
 }
 
@@ -134,20 +167,19 @@ async function handleClear() {
 .db-path {
   background: var(--bg-code);
   border-radius: var(--radius-sm);
-  padding: 12px 16px;
+  padding: 12px 14px;
   border: 1px solid var(--border-color);
+  margin-left: 48px;
 }
 .db-path-text {
   font-size: 12px;
   color: var(--text-secondary);
   font-family: 'SF Mono', 'Fira Code', monospace;
   word-break: break-all;
+  line-height: 1.5;
 }
 
 /* Danger zone */
-.danger-desc {
-  color: var(--text-muted);
-  font-size: 12px;
-  margin: 0 0 10px 0;
-}
+.danger-section .section-desc { color: var(--accent-error); opacity: 0.7; }
+.danger-section .n-button { margin-left: 48px; }
 </style>

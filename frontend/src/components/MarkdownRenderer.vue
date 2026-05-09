@@ -85,7 +85,7 @@ const rendered = computed(() => {
   color: var(--text-secondary);
 }
 .markdown-body :deep(a) {
-  color: #89b4fa;
+  color: var(--accent);
 }
 .markdown-body :deep(table) {
   border-collapse: collapse;
