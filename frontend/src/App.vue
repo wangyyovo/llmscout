@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, h, computed } from 'vue'
+import { ref, shallowRef, h, computed, onMounted, onUnmounted } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
 import ProxyPanel from './views/ProxyPanel.vue'
@@ -11,6 +11,17 @@ const { naiveTheme, themeClass } = useTheme()
 
 const collapsed = ref(false)
 const activeTab = ref('proxy')
+const showTopBtn = ref(false)
+
+function handleScroll(e) {
+  showTopBtn.value = e.target.scrollTop > 300
+}
+
+function scrollToTop(e) {
+  e.stopPropagation()
+  const el = document.querySelector('.n-layout-scroll-container') || document.documentElement
+  el.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 const menuOptions = [
   { label: () => '代理', key: 'proxy', icon: () => h('span', '📡') },
@@ -20,6 +31,20 @@ const menuOptions = [
 ]
 
 const currentView = shallowRef(ProxyPanel)
+
+function addScrollListener() {
+  const el = document.querySelector('.n-layout-scroll-container')
+  if (el) el.addEventListener('scroll', handleScroll)
+}
+
+onMounted(() => {
+  // Delay to let DOM render
+  setTimeout(addScrollListener, 500)
+})
+onUnmounted(() => {
+  const el = document.querySelector('.n-layout-scroll-container')
+  if (el) el.removeEventListener('scroll', handleScroll)
+})
 
 function handleUpdate(key) {
   activeTab.value = key
@@ -73,6 +98,12 @@ const layoutStyle = computed(() => ({
         </n-layout>
       </n-layout>
     </n-message-provider>
+    <Transition name="fade">
+      <n-button v-if="showTopBtn" circle size="medium" @click="scrollToTop"
+        style="position: fixed; bottom: 24px; right: 24px; z-index: 100; opacity: 0.85;">
+        ↑
+      </n-button>
+    </Transition>
   </n-config-provider>
 </template>
 
@@ -125,4 +156,7 @@ body { background: var(--bg-main); color: var(--text-primary); }
 
 .n-card { transition: box-shadow 0.15s ease; }
 .n-card:hover { box-shadow: var(--shadow); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
