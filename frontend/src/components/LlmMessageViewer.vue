@@ -312,7 +312,7 @@ const roleColors = {
         <details
           v-for="(msg, i) in messages" :key="i"
           style="background: var(--bg-message); border-radius: 8px; border-left: 3px solid transparent;"
-          :style="{ borderLeftColor: (msg.role === 'tool' && isToolError(msg)) ? '#f38ba8' : msg.role === 'user' ? '#89b4fa' : msg.role === 'assistant' ? '#a6e3a1' : msg.role === 'system' ? '#cba6f7' : '#fab387' }"
+          :style="{ borderLeftColor: (msg.role === 'tool' && isToolError(msg)) ? '#e74c3c' : msg.role === 'user' ? '#89b4fa' : msg.role === 'assistant' ? '#a6e3a1' : msg.role === 'system' ? '#cba6f7' : '#fab387' }"
         >
           <summary style="padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none;">
             <n-tag :type="roleColors[msg.role] || 'default'" size="small">{{ msg.role || 'unknown' }}</n-tag>
@@ -340,7 +340,7 @@ const roleColors = {
             <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;">🔧 工具调用:</div>
             <div v-for="(tc, j) in msg.tool_calls" :key="j" style="margin-top: 4px;">
               <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px;"
-                :style="{ borderLeft: '2px solid ' + (isFailed(msg, tc) ? '#f38ba8' : '#89dceb') }">
+                :style="{ borderLeft: '2px solid ' + (isFailed(msg, tc) ? '#e74c3c' : '#89dceb') }">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <code style="color: #89dceb; font-size: 13px; font-weight: bold;">{{ tc.function.name }}</code>
                   <span v-if="tc.id" style="color: var(--text-muted); font-size: 10px;">{{ tc.id }}</span>
@@ -362,7 +362,8 @@ const roleColors = {
 
           <div v-if="msg.tool_results && msg.tool_results.length" style="margin-top: 8px;">
             <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;">📋 工具结果:</div>
-            <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #a6e3a1;">
+            <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px;"
+              :style="{ borderLeft: '2px solid ' + (tr.isError ? '#e74c3c' : '#a6e3a1') }">
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                 <span style="color: var(--text-muted); font-size: 11px;">id: {{ tr.id }}</span>
                 <n-tag v-if="tr.isError" size="tiny" type="error">✗ 失败</n-tag>
@@ -394,11 +395,11 @@ const roleColors = {
                 <div v-if="tool.description" style="color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">{{ tool.description }}</div>
                 <div v-if="tool.inputSchema" style="margin-top: 6px;">
                   <template v-if="tool.inputSchema.properties">
-                    <div v-for="(param, pName) in tool.inputSchema.properties" :key="pName" style="display: flex; align-items: baseline; gap: 6px; padding: 4px 8px; margin: 2px 0; background: var(--bg-code); border-radius: 4px; font-size: 12px;">
+                    <div v-for="(param, pName) in tool.inputSchema.properties" :key="pName" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 6px; padding: 4px 8px; margin: 2px 0; background: var(--bg-code); border-radius: 4px; font-size: 12px;">
                       <code style="color: #89dceb; font-weight: bold; white-space: nowrap;">{{ pName }}</code>
-                      <span v-if="param.type" style="color: var(--text-muted); font-size: 11px;">{{ param.type }}</span>
-                      <span v-if="tool.inputSchema.required && tool.inputSchema.required.includes(pName)" style="color: #f38ba8; font-size: 11px;">*必填</span>
-                      <span v-if="param.description" style="color: var(--text-secondary); margin-left: 4px;">— {{ param.description }}</span>
+                      <span v-if="param.type" style="color: var(--text-muted); font-size: 11px; white-space: nowrap;">{{ param.type }}</span>
+                      <span v-if="tool.inputSchema.required && tool.inputSchema.required.includes(pName)" style="color: #e74c3c; font-size: 11px; white-space: nowrap;">*必填</span>
+                      <span v-if="param.description" style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">— {{ param.description }}</span>
                     </div>
                   </template>
                   <pre v-else style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ JSON.stringify(tool.inputSchema, null, 2) }}</pre>
