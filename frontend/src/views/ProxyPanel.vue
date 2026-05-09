@@ -139,7 +139,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 680px;
 }
 
 /* Control card */
@@ -284,7 +283,6 @@ onUnmounted(() => {
 
 /* Responsive */
 @media (max-width: 900px) {
-  .proxy-grid { max-width: none; }
   .stats-row { gap: 10px; }
   :deep(.stat-card .n-statistic__value) { font-size: 20px; }
 }

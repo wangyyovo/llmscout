@@ -99,7 +99,6 @@ async function handleClear() {
 
 <style scoped>
 .settings-grid {
-  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -183,9 +182,6 @@ async function handleClear() {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .settings-grid { max-width: none; }
-}
 @media (max-width: 600px) {
   .block-header { gap: 10px; }
   .block-icon { width: 34px; height: 34px; border-radius: 8px; }
