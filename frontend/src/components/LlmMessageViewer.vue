@@ -298,6 +298,7 @@ const roleColors = {
         >
           <summary style="padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none;">
             <n-tag :type="roleColors[msg.role] || 'default'" size="small">{{ msg.role || 'unknown' }}</n-tag>
+            <span v-if="msg.tool_call_id" style="color: var(--text-muted); font-size: 10px; font-family: monospace;">{{ msg.tool_call_id }}</span>
             <span v-if="msg.name" style="color: var(--text-muted); font-size: 12px;">{{ msg.name }}</span>
             <span style="color: var(--text-muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ summaryText(msg) }}</span>
           </summary>
