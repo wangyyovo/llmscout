@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, onErrorCaptured } from 'vue'
-import { NCollapse, NCollapseItem, NTag, NButton } from 'naive-ui'
+import { NCollapse, NCollapseItem, NTag, NButton, NIcon } from 'naive-ui'
+import { DocumentTextOutline, CodeOutline, BulbOutline, ConstructOutline, ClipboardOutline, GitBranchOutline } from '@vicons/ionicons5'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps({
@@ -309,7 +310,7 @@ const roleColors = {
       <!-- SSE extracted content -->
       <template v-if="sseContent">
         <div v-if="sseContent.reasoning" style="margin-bottom: 8px; padding: 8px 12px; background: var(--bg-code); border-radius: 4px; color: #fab387; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; border-left: 2px solid #fab387;">
-          <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7;">🧠 思考过程</div>
+          <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7; display: flex; align-items: center; gap: 4px;"><n-icon size="14"><bulb-outline /></n-icon>思考过程</div>
           {{ sseContent.reasoning }}
         </div>
         <div style="color: var(--text-primary); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">
@@ -338,13 +339,13 @@ const roleColors = {
           <div style="padding: 0 16px 12px 16px;">
 
           <div v-if="msg.reasoning_content" style="margin-bottom: 8px; padding: 8px 12px; background: var(--bg-code); border-radius: 4px; color: #fab387; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; border-left: 2px solid #fab387;">
-            <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7;">🧠 思考过程</div>
+            <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7; display: flex; align-items: center; gap: 4px;"><n-icon size="14"><bulb-outline /></n-icon>思考过程</div>
             {{ msg.reasoning_content }}
           </div>
 
           <template v-if="msg.content">
             <div v-if="formatHtml(msg.content)" style="margin-bottom: 4px;">
-              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;">📄 HTML 输出</div>
+              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;"><n-icon size="14"><code-outline /></n-icon> HTML 输出</div>
               <pre style="background: var(--bg-code); border-radius: 4px; padding: 10px 12px; font-size: 12px; line-height: 1.5; overflow-x: auto; color: var(--text-primary); white-space: pre; tab-size: 2;"><code>{{ formatHtml(msg.content) }}</code></pre>
             </div>
             <markdown-renderer v-else :content="toTextContent(msg.content)" />
@@ -352,7 +353,7 @@ const roleColors = {
           <div v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</div>
 
           <div v-if="msg.tool_calls && msg.tool_calls.length" style="margin-top: 8px;">
-            <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;">🔧 工具调用:</div>
+            <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;"><n-icon size="14"><construct-outline /></n-icon> 工具调用</div>
             <div v-for="(tc, j) in msg.tool_calls" :key="j" style="margin-top: 4px;">
               <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px;"
                 :style="{ borderLeft: '2px solid ' + (isFailed(msg, tc) ? '#e74c3c' : '#89dceb') }">
@@ -376,7 +377,7 @@ const roleColors = {
           </div>
 
           <div v-if="msg.tool_results && msg.tool_results.length" style="margin-top: 8px;">
-            <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;">📋 工具结果:</div>
+            <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;"><n-icon size="14"><clipboard-outline /></n-icon> 工具结果</div>
             <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px;"
               :style="{ borderLeft: '2px solid ' + (tr.isError ? '#e74c3c' : '#a6e3a1') }">
               <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
@@ -400,7 +401,7 @@ const roleColors = {
 
       <div v-if="tools && tools.length > 0" style="margin-top: 16px;">
         <n-collapse>
-          <n-collapse-item :title="'🔧 工具定义 (' + tools.length + ')'" name="tools">
+          <n-collapse-item :title="'工具定义 (' + tools.length + ')'" name="tools">
             <div v-for="(tool, i) in tools" :key="i" style="margin-bottom: 12px;">
               <div style="background: var(--bg-message); border-radius: 8px; padding: 12px; border-left: 3px solid #89dceb;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">

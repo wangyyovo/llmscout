@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, onErrorCaptured } from 'vue'
-import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane } from 'naive-ui'
+import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane, NIcon } from 'naive-ui'
+import { SearchOutline, RefreshOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
 import { QueryLogs, GetLog, GetLogRouteNames, DeleteLogs } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
 import LlmMessageViewer from '../components/LlmMessageViewer.vue'
@@ -150,10 +151,10 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
 <template>
   <div>
-    <h2 style="color: var(--text-primary); margin-bottom: 16px;">📋 请求日志</h2>
+    <h2 style="color: var(--text-primary); margin-bottom: 16px;">请求日志</h2>
 
     <div style="display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;">
-      <n-input v-model:value="keyword" placeholder="🔍 搜索关键词..." clearable style="width: 180px;" @keyup.enter="search" />
+      <n-input v-model:value="keyword" placeholder="搜索关键词..." clearable style="width: 180px;" @keyup.enter="search" />
       <n-select v-model:value="routeName" :options="routeOptions" style="width: 130px;" @update:value="search" />
       <n-select v-model:value="statusCode" :options="statusOptions" style="width: 110px;" @update:value="search" />
       <n-select v-model:value="protocol" :options="protocolOptions" style="width: 110px;" @update:value="search" />

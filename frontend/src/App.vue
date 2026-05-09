@@ -1,7 +1,8 @@
 <script setup>
 import { ref, shallowRef, h, computed } from 'vue'
-import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
+import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton, NIcon } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
+import { ServerOutline, GitBranchOutline, DocumentTextOutline, SettingsOutline } from '@vicons/ionicons5'
 import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
 import LogViewer from './views/LogViewer.vue'
@@ -12,11 +13,13 @@ const { naiveTheme, themeClass } = useTheme()
 const collapsed = ref(false)
 const activeTab = ref('proxy')
 
+const renderIcon = (icon) => () => h(NIcon, { size: 18 }, () => h(icon))
+
 const menuOptions = [
-  { label: () => '代理', key: 'proxy', icon: () => h('span', '📡') },
-  { label: () => '路由', key: 'routes', icon: () => h('span', '🔀') },
-  { label: () => '日志', key: 'logs', icon: () => h('span', '📋') },
-  { label: () => '设置', key: 'settings', icon: () => h('span', '⚙') },
+  { label: () => '代理', key: 'proxy', icon: renderIcon(ServerOutline) },
+  { label: () => '路由', key: 'routes', icon: renderIcon(GitBranchOutline) },
+  { label: () => '日志', key: 'logs', icon: renderIcon(DocumentTextOutline) },
+  { label: () => '设置', key: 'settings', icon: renderIcon(SettingsOutline) },
 ]
 
 const currentView = shallowRef(ProxyPanel)

@@ -45,7 +45,7 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <h2 style="color: var(--text-primary); margin-bottom: 20px;">📡 代理控制</h2>
+    <h2 style="color: var(--text-primary); margin-bottom: 20px;">代理控制</h2>
     <n-card style="background: var(--bg-card); border: none; max-width: 500px;">
       <n-space vertical size="large">
         <div style="display: flex; align-items: center; gap: 12px;">

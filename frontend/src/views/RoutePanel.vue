@@ -58,7 +58,7 @@ onMounted(load)
 <template>
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h2 style="color: var(--text-primary);">🔀 路由规则</h2>
+      <h2 style="color: var(--text-primary);">路由规则</h2>
       <n-button type="primary" @click="openAdd">+ 添加路由</n-button>
     </div>
 
