@@ -105,8 +105,7 @@ const hasLLMContent = computed(() => {
 
 // Detect if content is HTML and format it with proper indentation via DOMParser
 function formatHtml(text) {
-  if (!text) return null
-  // Only detect if content starts with or is clearly HTML (multiple tags)
+  if (!text || typeof text !== 'string') return null
   let trimmed = text.trim()
   if (!/^<\w+[\s>]/i.test(trimmed)) return null
   if (!/<\/?(html|div|table|tr|td|th|tbody|thead|ul|ol|li|p|h[1-6]|span|section|article|header|footer|main|nav|form|input|select|option|button|a|img|pre|code|blockquote|dl|dt|dd)[\s>]/i.test(text)) return null
@@ -143,6 +142,16 @@ function formatHtml(text) {
   } catch {
     return null
   }
+}
+
+// Handle content that may be string, array (Anthropic format), or other
+function toTextContent(content) {
+  if (!content) return ''
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content.filter(c => c.type === 'text').map(c => c.text).join('\n')
+  }
+  return JSON.stringify(content)
 }
 
 function tryParseJson(str) {
@@ -224,7 +233,7 @@ const roleColors = {
               <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;">📄 HTML 输出</div>
               <pre style="background: var(--bg-code); border-radius: 4px; padding: 10px 12px; font-size: 12px; line-height: 1.5; overflow-x: auto; color: var(--text-primary); white-space: pre; tab-size: 2;"><code>{{ formatHtml(msg.content) }}</code></pre>
             </div>
-            <markdown-renderer v-else :content="msg.content" />
+            <markdown-renderer v-else :content="toTextContent(msg.content)" />
           </template>
           <div v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</div>
 
