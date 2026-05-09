@@ -98,28 +98,28 @@ const themeOverrides = {
           :native-scrollbar="false"
           :style="siderStyle"
         >
-          <div class="sider-brand" :class="{ 'sider-brand-collapsed': sidebarCollapsed }">
-            <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
-            <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
-          </div>
-          <n-menu
-            :collapsed="sidebarCollapsed"
-            :collapsed-width="56"
-            :collapsed-icon-size="20"
-            :options="menuOptions"
-            :value="activeTab"
-            @update:value="handleUpdate"
-          />
-          <template #collapse-extra>
+          <div class="sider-inner" :style="{ display: 'flex', flexDirection: 'column', height: '100%' }">
+            <div class="sider-brand" :class="{ 'sider-brand-collapsed': sidebarCollapsed }">
+              <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
+              <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
+            </div>
+            <n-menu
+              :collapsed="sidebarCollapsed"
+              :collapsed-width="56"
+              :collapsed-icon-size="20"
+              :options="menuOptions"
+              :value="activeTab"
+              @update:value="handleUpdate"
+            />
             <div class="sider-footer">
               <n-button quaternary size="small" @click="collapsed = !collapsed" class="collapse-btn">
                 <template #icon>
-                  <n-icon size="16"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
+                  <n-icon size="18"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
                 </template>
                 <span v-show="!sidebarCollapsed" class="collapse-label">收起菜单</span>
               </n-button>
             </div>
-          </template>
+          </div>
         </n-layout-sider>
         <n-layout :content-style="layoutStyle">
           <component :is="currentView" />
@@ -229,7 +229,8 @@ body { background: var(--bg-main); color: var(--text-primary); }
 
 /* Sidebar footer */
 .sider-footer {
-  padding: 8px;
+  margin-top: auto;
+  padding: 10px 8px;
   text-align: center;
   border-top: 1px solid var(--border-color);
 }
@@ -239,14 +240,14 @@ body { background: var(--bg-main); color: var(--text-primary); }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   transition: color var(--transition);
   border-radius: var(--radius-sm);
 }
 .collapse-btn:hover { color: var(--text-secondary); }
 .collapse-label { font-size: 12px; }
 
-/* Sidebar width transition */
+/* Sidebar internal layout */
 .n-layout-sider {
   transition: width 0.25s ease !important;
 }
