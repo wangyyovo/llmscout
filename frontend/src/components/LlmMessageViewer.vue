@@ -33,34 +33,35 @@ const parsed = computed(() => {
   return null
 })
 
-// Extract streaming content from SSE body (concatenated deltas)
+// Extract streaming content from SSE body (OpenAI + Anthropic)
 const sseContent = computed(() => {
   if (!props.data || !props.data.includes('data:')) return null
   const lines = props.data.split('\n').filter(l => l.startsWith('data:'))
-  let content = ''
-  let reasoning = ''
-  let modelName = ''
-  let stopReason = ''
+  let content = '', reasoning = '', modelName = '', stopReason = ''
   for (const l of lines) {
     const j = l.slice(5).trim()
     if (!j || j === '[DONE]') continue
     try {
       const evt = JSON.parse(j)
       if (evt.model && !modelName) modelName = evt.model
-      if (evt.choices) {
-        for (const c of evt.choices) {
-          if (c.delta) {
-            if (c.delta.content) content += c.delta.content
-            if (c.delta.reasoning_content) reasoning += c.delta.reasoning_content
-          }
-          if (c.finish_reason) stopReason = c.finish_reason
+      // OpenAI
+      if (evt.choices) for (const c of evt.choices) {
+        if (c.delta) {
+          if (c.delta.content) content += c.delta.content
+          if (c.delta.reasoning_content) reasoning += c.delta.reasoning_content
         }
+        if (c.finish_reason) stopReason = c.finish_reason
       }
+      // Anthropic
+      if (evt.type === 'message_start' && evt.message && evt.message.model) modelName = evt.message.model
+      if (evt.type === 'content_block_delta' && evt.delta) {
+        if (evt.delta.type === 'text_delta' || evt.delta.type === 'text') content += evt.delta.text || ''
+        if (evt.delta.type === 'thinking_delta') reasoning += evt.delta.thinking || ''
+      }
+      if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason) stopReason = evt.delta.stop_reason
     } catch { /* skip */ }
   }
-  if (content || reasoning || stopReason) {
-    return { content: content.trim(), reasoning: reasoning.trim(), model: modelName, stopReason }
-  }
+  if (content || reasoning || stopReason) return { content: content.trim(), reasoning: reasoning.trim(), model: modelName, stopReason }
   return null
 })
 
