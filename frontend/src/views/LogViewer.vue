@@ -177,6 +177,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <th style="width: 36px;">
               <input type="checkbox" :checked="selectedIds.length === logs.length && logs.length > 0" @click.stop="selectAll()" style="cursor: pointer;" />
             </th>
+            <th style="color: var(--text-secondary); width: 60px;">#</th>
             <th style="color: var(--text-secondary); width: 55px;">协议</th>
             <th style="color: var(--text-secondary); width: 50px;">方法</th>
             <th style="color: var(--text-secondary); width: 60px;">状态</th>
@@ -192,6 +193,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td @click.stop>
               <input type="checkbox" :checked="isSelected(log.id)" @click.stop="toggleSelect(log.id)" style="cursor: pointer;" />
             </td>
+            <td @click="openDetail(log.id)" style="color: var(--text-muted); font-size: 11px; font-family: monospace;">{{ log.id }}</td>
             <td @click="openDetail(log.id)"><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
             <td @click="openDetail(log.id)" style="color: #89b4fa; font-size: 12px;">{{ log.method }}</td>
             <td @click="openDetail(log.id)"><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
@@ -206,7 +208,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px; white-space: nowrap;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
-            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
+            <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
           </tr>
         </tbody>
       </n-table>
