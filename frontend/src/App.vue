@@ -15,6 +15,8 @@ const collapsed = ref(false)
 const autoCollapsed = ref(false)
 const activeTab = ref('proxy')
 
+const sidebarCollapsed = computed(() => autoCollapsed.value || collapsed.value)
+
 const renderIcon = (icon) => () => h(NIcon, { size: 18 }, () => h(icon))
 
 const menuOptions = [
@@ -89,7 +91,7 @@ const themeOverrides = {
       <n-layout has-sider position="absolute" style="height: 100vh;">
         <n-layout-sider
           bordered
-          :collapsed="autoCollapsed || collapsed"
+          :collapsed="sidebarCollapsed"
           collapse-mode="width"
           :collapsed-width="56"
           :width="200"
@@ -98,10 +100,10 @@ const themeOverrides = {
         >
           <div class="sider-brand">
             <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
-            <span v-show="!collapsed" class="sider-title">LLM Scout</span>
+            <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
           </div>
           <n-menu
-            :collapsed="collapsed"
+            :collapsed="sidebarCollapsed"
             :collapsed-width="56"
             :collapsed-icon-size="20"
             :options="menuOptions"
@@ -112,20 +114,15 @@ const themeOverrides = {
             <div class="sider-footer">
               <n-button quaternary size="small" @click="collapsed = !collapsed" class="collapse-btn">
                 <template #icon>
-                  <n-icon size="16"><ChevronBackOutline v-if="!collapsed" /><ChevronForwardOutline v-else /></n-icon>
+                  <n-icon size="16"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
                 </template>
-                <span v-show="!collapsed" class="collapse-label">收起菜单</span>
+                <span v-show="!sidebarCollapsed" class="collapse-label">收起菜单</span>
               </n-button>
             </div>
           </template>
         </n-layout-sider>
         <n-layout :content-style="layoutStyle">
-          <div class="content-area">
-            <button class="sidebar-toggle" @click="collapsed = !collapsed" :title="collapsed ? '展开菜单' : '收起菜单'">
-              <n-icon size="18"><ChevronForwardOutline v-if="collapsed" /><ChevronBackOutline v-else /></n-icon>
-            </button>
-            <component :is="currentView" />
-          </div>
+          <component :is="currentView" />
         </n-layout>
       </n-layout>
     </n-message-provider>
@@ -283,36 +280,6 @@ body { background: var(--bg-main); color: var(--text-primary); }
 /* Fade transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
-
-/* Sidebar quick toggle */
-.content-area {
-  position: relative;
-  height: 100%;
-}
-.sidebar-toggle {
-  position: absolute;
-  left: -4px;
-  top: 12px;
-  z-index: 100;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  opacity: 0.5;
-  transition: opacity 0.2s, color 0.2s, box-shadow 0.2s;
-}
-.sidebar-toggle:hover {
-  opacity: 1;
-  color: var(--accent);
-  box-shadow: var(--shadow-sm);
-}
 
 /* Responsive */
 @media (max-width: 900px) {
