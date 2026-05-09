@@ -7,6 +7,7 @@ import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
 import LogViewer from './views/LogViewer.vue'
 import SettingsPanel from './views/SettingsPanel.vue'
+import logoSvg from './assets/logo.svg'
 
 const { naiveTheme, themeClass } = useTheme()
 
@@ -36,7 +37,7 @@ const siderStyle = computed(() => ({
 }))
 
 const layoutStyle = computed(() => ({
-  padding: '20px 24px',
+  padding: '28px 32px',
   background: 'var(--bg-main)',
   color: 'var(--text-primary)'
 }))
@@ -51,10 +52,14 @@ const layoutStyle = computed(() => ({
           :collapsed="collapsed"
           collapse-mode="width"
           :collapsed-width="56"
-          :width="180"
+          :width="200"
           :native-scrollbar="false"
           :style="siderStyle"
         >
+          <div class="sider-brand">
+            <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
+            <span v-show="!collapsed" class="sider-title">LLM Scout</span>
+          </div>
           <n-menu
             :collapsed="collapsed"
             :collapsed-width="56"
@@ -64,9 +69,10 @@ const layoutStyle = computed(() => ({
             @update:value="handleUpdate"
           />
           <template #collapse-extra>
-            <div style="padding: 8px; text-align: center; border-top: 1px solid var(--border-color);">
-              <n-button quaternary size="small" @click="collapsed = !collapsed" style="color: var(--text-muted);">
-                {{ collapsed ? '»' : '« 收缩' }}
+            <div class="sider-footer">
+              <n-button quaternary size="small" @click="collapsed = !collapsed" class="collapse-btn">
+                <span class="collapse-arrow">{{ collapsed ? '»' : '«' }}</span>
+                <span v-show="!collapsed" class="collapse-label">收起菜单</span>
               </n-button>
             </div>
           </template>
@@ -81,42 +87,58 @@ const layoutStyle = computed(() => ({
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif; }
+html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, system-ui, sans-serif; }
 
-/* Dark theme (default) */
+/* Dark theme */
 body, .theme-dark {
-  --bg-main: #181825;
-  --bg-card: #1e1e2e;
-  --bg-sider: #1e1e2e;
-  --bg-code: #11111b;
-  --bg-message: #1e1e2e;
-  --bg-hover: rgba(137,180,250,0.04);
-  --border-color: #313244;
-  --text-primary: #cdd6f4;
-  --text-secondary: #a6adc8;
-  --text-muted: #6c7086;
-  --accent: #89b4fa;
-  --shadow: 0 1px 3px rgba(0,0,0,0.3);
-  --radius: 8px;
-  --radius-sm: 4px;
+  --bg-main: #0f0f1a;
+  --bg-card: #18182a;
+  --bg-sider: #141425;
+  --bg-code: #0a0a14;
+  --bg-message: #18182a;
+  --bg-hover: rgba(124,140,248,0.06);
+  --border-color: #262640;
+  --text-primary: #e2e4f0;
+  --text-secondary: #a0a4b8;
+  --text-muted: #6b6f85;
+  --accent: #7c8cf8;
+  --accent-hover: #909ef9;
+  --accent-success: #5ce6b8;
+  --accent-warning: #f5a97f;
+  --accent-error: #f38ba8;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow: 0 2px 8px rgba(0,0,0,0.25);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.3);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-xs: 4px;
+  --transition: 0.2s ease;
 }
 
 /* Light theme */
 .theme-light {
-  --bg-main: #f5f5f5;
+  --bg-main: #f0f2f5;
   --bg-card: #ffffff;
-  --bg-sider: #fafafa;
-  --bg-code: #f0f0f0;
-  --bg-message: #f8f8f8;
-  --bg-hover: rgba(0,0,0,0.03);
-  --border-color: #e0e0e0;
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --text-muted: #999999;
-  --accent: #2563eb;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  --radius: 8px;
-  --radius-sm: 4px;
+  --bg-sider: #f8f9fb;
+  --bg-code: #f5f5f5;
+  --bg-message: #fafafa;
+  --bg-hover: rgba(124,140,248,0.05);
+  --border-color: #e5e6eb;
+  --text-primary: #1d1f2a;
+  --text-secondary: #606470;
+  --text-muted: #9498a3;
+  --accent: #5b6cf0;
+  --accent-hover: #4a5de0;
+  --accent-success: #22b88b;
+  --accent-warning: #f08c42;
+  --accent-error: #e0556f;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-xs: 4px;
+  --transition: 0.2s ease;
 }
 
 body { background: var(--bg-main); color: var(--text-primary); }
@@ -126,9 +148,87 @@ body { background: var(--bg-main); color: var(--text-primary); }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-.n-card { transition: box-shadow 0.15s ease; }
-.n-card:hover { box-shadow: var(--shadow); }
+/* Sidebar brand */
+.sider-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+.sider-logo {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+.sider-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
 
+/* Sidebar footer */
+.sider-footer {
+  padding: 10px 8px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+}
+.collapse-btn {
+  color: var(--text-muted);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color var(--transition);
+}
+.collapse-btn:hover { color: var(--text-secondary); }
+.collapse-arrow { font-size: 14px; }
+.collapse-label { font-size: 12px; }
+
+/* Page section headers */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+/* Card refinements */
+.n-card {
+  border-radius: var(--radius) !important;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.n-card:hover {
+  box-shadow: var(--shadow);
+}
+.card-accent {
+  position: relative;
+  overflow: hidden;
+}
+.card-accent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Fade transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted, onErrorCaptured } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane, NIcon } from 'naive-ui'
-import { SearchOutline, RefreshOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
+import { SearchOutline, RefreshOutline, TrashOutline } from '@vicons/ionicons5'
 import { QueryLogs, GetLog, GetLogRouteNames, DeleteLogs } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
 import LlmMessageViewer from '../components/LlmMessageViewer.vue'
@@ -151,72 +151,96 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
 <template>
   <div>
-    <h2 style="color: var(--text-primary); margin-bottom: 16px;">请求日志</h2>
+    <div class="page-header">
+      <h2 class="page-title">请求日志</h2>
+      <div class="header-actions">
+        <n-button quaternary size="small" @click="load" class="refresh-btn">
+          <template #icon><n-icon size="16"><RefreshOutline /></n-icon></template>
+        </n-button>
+      </div>
+    </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;">
-      <n-input v-model:value="keyword" placeholder="搜索关键词..." clearable style="width: 180px;" @keyup.enter="search" />
-      <n-select v-model:value="routeName" :options="routeOptions" style="width: 130px;" @update:value="search" />
-      <n-select v-model:value="statusCode" :options="statusOptions" style="width: 110px;" @update:value="search" />
-      <n-select v-model:value="protocol" :options="protocolOptions" style="width: 110px;" @update:value="search" />
-      <n-button type="primary" size="small" @click="search">搜索</n-button>
-      <span style="margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px;">
-        <span>🔄</span>
-        <n-switch v-model:value="autoRefresh" @update:value="toggleAuto" />
-        <n-select v-model:value="refreshInterval" :options="[{label:'3 秒',value:3},{label:'5 秒',value:5},{label:'10 秒',value:10}]" style="width: 80px;" />
+    <div class="filter-bar">
+      <n-input v-model:value="keyword" placeholder="搜索关键词..." clearable class="filter-input" @keyup.enter="search">
+        <template #prefix><n-icon size="14" color="var(--text-muted)"><SearchOutline /></n-icon></template>
+      </n-input>
+      <n-select v-model:value="routeName" :options="routeOptions" class="filter-select" @update:value="search" />
+      <n-select v-model:value="statusCode" :options="statusOptions" class="filter-select-sm" @update:value="search" />
+      <n-select v-model:value="protocol" :options="protocolOptions" class="filter-select-sm" @update:value="search" />
+      <n-button type="primary" size="small" @click="search" class="search-btn">
+        <template #icon><n-icon size="14"><SearchOutline /></n-icon></template>
+        搜索
+      </n-button>
+      <span class="auto-refresh">
+        <span class="auto-label">自动刷新</span>
+        <n-switch v-model:value="autoRefresh" @update:value="toggleAuto" size="small" />
+        <n-select v-model:value="refreshInterval" :options="[{label:'3 秒',value:3},{label:'5 秒',value:5},{label:'10 秒',value:10}]" class="interval-select" size="small" />
       </span>
     </div>
 
-    <div style="background: var(--bg-card); border-radius: 8px; overflow: hidden;">
-      <div v-if="selectedIds.length > 0" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 6px 12px; background: var(--bg-card); border-radius: 6px;">
-        <span style="color: var(--text-secondary); font-size: 12px;">已选 {{ selectedIds.length }} 条</span>
-        <n-button size="tiny" type="error" @click="deleteSelected">删除选中</n-button>
+    <div class="table-container">
+      <div v-if="selectedIds.length > 0" class="batch-bar">
+        <span class="batch-info">已选 {{ selectedIds.length }} 条</span>
+        <n-button size="tiny" type="error" @click="deleteSelected" :border-radius="4">
+          <template #icon><n-icon size="12"><TrashOutline /></n-icon></template>
+          删除选中
+        </n-button>
       </div>
-      <n-table :single-line="false" style="background: transparent;">
+
+      <n-table :single-line="false" class="log-table">
         <thead>
-          <tr style="background: var(--border-color);">
-            <th style="width: 36px;">
-              <input type="checkbox" :checked="selectedIds.length === logs.length && logs.length > 0" @click.stop="selectAll()" style="cursor: pointer;" />
+          <tr class="table-head-row">
+            <th class="col-cb">
+              <input type="checkbox" :checked="selectedIds.length === logs.length && logs.length > 0" @click.stop="selectAll()" class="table-checkbox" />
             </th>
-            <th style="color: var(--text-secondary); width: 60px;">#</th>
-            <th style="color: var(--text-secondary); width: 55px;">协议</th>
-            <th style="color: var(--text-secondary); width: 50px;">方法</th>
-            <th style="color: var(--text-secondary); width: 60px;">状态</th>
-            <th style="color: var(--text-secondary); width: 75px;">服务商</th>
-            <th style="color: var(--text-secondary); width: 60px;">耗时</th>
-            <th style="color: var(--text-secondary); min-width: 200px;">请求地址</th>
-            <th style="color: var(--text-secondary); min-width: 200px;">转发到</th>
-            <th style="color: var(--text-secondary); width: 140px;">时间</th>
+            <th class="col-id">#</th>
+            <th class="col-proto">协议</th>
+            <th class="col-method">方法</th>
+            <th class="col-status">状态</th>
+            <th class="col-route">服务商</th>
+            <th class="col-latency">耗时</th>
+            <th class="col-url">请求地址</th>
+            <th class="col-target">转发到</th>
+            <th class="col-time">时间</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="log in logs" :key="log.id" style="cursor: pointer;">
-            <td @click.stop>
-              <input type="checkbox" :checked="isSelected(log.id)" @click.stop="toggleSelect(log.id)" style="cursor: pointer;" />
+          <tr v-for="log in logs" :key="log.id" class="table-row" @click="openDetail(log.id)">
+            <td class="col-cb" @click.stop>
+              <input type="checkbox" :checked="isSelected(log.id)" @click.stop="toggleSelect(log.id)" class="table-checkbox" />
             </td>
-            <td @click="openDetail(log.id)" style="color: var(--text-muted); font-size: 11px; font-family: monospace;">{{ log.id }}</td>
-            <td @click="openDetail(log.id)"><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
-            <td @click="openDetail(log.id)" style="color: #89b4fa; font-size: 12px;">{{ log.method }}</td>
-            <td @click="openDetail(log.id)"><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
-            <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ log.routeName }}</td>
-            <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ formatLatency(log.latencyMs) }}</td>
-            <td @click="openDetail(log.id)" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="log.requestUrl">
-              <code style="color: var(--text-secondary); font-size: 11px;">{{ log.requestUrl || log.path }}</code>
+            <td class="col-id cell-muted cell-mono">{{ log.id }}</td>
+            <td class="col-proto"><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny" round>{{ log.protocol }}</n-tag></td>
+            <td class="col-method cell-accent cell-mono">{{ log.method }}</td>
+            <td class="col-status"><n-tag :type="statusTagType(log.statusCode)" size="tiny" round>{{ log.statusCode }}</n-tag></td>
+            <td class="col-route cell-primary">{{ log.routeName }}</td>
+            <td class="col-latency cell-primary cell-mono">{{ formatLatency(log.latencyMs) }}</td>
+            <td class="col-url cell-ellipsis" :title="log.requestUrl">
+              <code class="url-code">{{ log.requestUrl || log.path }}</code>
             </td>
-            <td @click="openDetail(log.id)" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="log.targetUrl">
-              <code style="color: #a6e3a1; font-size: 11px;">{{ log.targetUrl || '-' }}</code>
+            <td class="col-target cell-ellipsis" :title="log.targetUrl">
+              <code class="target-code">{{ log.targetUrl || '-' }}</code>
             </td>
-            <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px; white-space: nowrap;">{{ formatTime(log.createdAt) }}</td>
+            <td class="col-time cell-secondary">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
-            <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
+            <td colspan="10" class="empty-row">暂无日志记录</td>
           </tr>
         </tbody>
       </n-table>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-      <div style="color: var(--text-secondary); font-size: 12px;">
-        每页 <n-select v-model:value="pageSize" :options="[{label:'20',value:20},{label:'50',value:50},{label:'100',value:100}]" style="width: 70px; display: inline-block;" @update:value="load" /> 条
+    <div class="table-footer">
+      <div class="page-size">
+        <span class="page-size-label">每页</span>
+        <n-select
+          v-model:value="pageSize"
+          :options="[{label:'20',value:20},{label:'50',value:50},{label:'100',value:100}]"
+          class="page-size-select"
+          size="small"
+          @update:value="load"
+        />
+        <span class="page-size-label">条</span>
       </div>
       <n-pagination
         v-model:page="page"
@@ -226,13 +250,13 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       />
     </div>
 
-    <n-modal v-model:show="showDetail" preset="card" title="请求详情" style="max-width: 860px;" :segmented="{ content: true }">
+    <n-modal v-model:show="showDetail" preset="card" title="请求详情" class="detail-modal" :bordered="false">
       <template v-if="detailLog">
-        <n-tabs type="line">
-          <n-tab-pane name="req" tab="📤 请求">
+        <n-tabs type="line" animated>
+          <n-tab-pane name="req" tab="请求">
             <llm-message-viewer :data="detailLog.reqBody" mode="request" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
           </n-tab-pane>
-          <n-tab-pane name="resp" tab="📥 响应">
+          <n-tab-pane name="resp" tab="响应">
             <llm-message-viewer :data="detailLog.respBody" mode="response" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
           </n-tab-pane>
           <n-tab-pane name="reqHeaders" tab="请求头">
@@ -250,6 +274,161 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 </template>
 
 <style scoped>
-:deep(.n-table tbody tr:hover) { background: var(--bg-hover) !important; }
-:deep(.n-table tbody tr) { transition: background 0.15s ease; }
+/* Header */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.refresh-btn {
+  font-size: 16px;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.filter-input { width: 200px; }
+.filter-select { width: 140px; }
+.filter-select-sm { width: 110px; }
+.search-btn { border-radius: var(--radius-sm); }
+.auto-refresh {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.auto-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.interval-select { width: 76px; }
+
+/* Table container */
+.table-container {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Batch bar */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-color);
+}
+.batch-info {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Table */
+.log-table {
+  background: transparent;
+}
+:deep(.log-table .n-table-header) {
+  background: transparent;
+}
+.table-head-row {
+  background: var(--bg-hover) !important;
+}
+.table-head-row th {
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-row {
+  cursor: pointer;
+  transition: background var(--transition);
+  border-bottom: 1px solid var(--border-color);
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: var(--bg-hover) !important; }
+
+.table-row td {
+  padding: 9px 12px;
+  font-size: 13px;
+}
+
+/* Cell styles */
+.col-cb { width: 36px; text-align: center; }
+.col-id { width: 56px; }
+.col-proto { width: 60px; }
+.col-method { width: 54px; }
+.col-status { width: 56px; }
+.col-route { width: 76px; }
+.col-latency { width: 66px; }
+.col-time { width: 150px; white-space: nowrap; }
+.col-url, .col-target { min-width: 180px; max-width: 280px; }
+
+.cell-muted { color: var(--text-muted); }
+.cell-mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+.cell-accent { color: var(--accent); font-weight: 500; }
+.cell-primary { color: var(--text-primary); font-size: 13px; }
+.cell-secondary { color: var(--text-secondary); font-size: 12px; }
+
+.cell-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+}
+.url-code {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.target-code {
+  color: var(--accent-success);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.table-checkbox {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.empty-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 12px !important;
+  font-size: 13px;
+}
+
+/* Table footer */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.page-size-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.page-size-select { width: 72px; }
+
+/* Detail modal */
+.detail-modal {
+  max-width: 860px;
+}
 </style>

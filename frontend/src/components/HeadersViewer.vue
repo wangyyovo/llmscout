@@ -33,14 +33,49 @@ function isMaskable(key) {
 </script>
 
 <template>
-  <div v-if="headers.length > 0" style="font-size: 12px; font-family: monospace;">
+  <div v-if="headers.length > 0" class="headers-viewer">
     <div
       v-for="h in headers" :key="h.key"
-      style="display: flex; gap: 12px; padding: 3px 0; border-bottom: 1px solid var(--border-color); align-items: baseline;"
+      class="header-row"
     >
-      <span style="color: #89b4fa; white-space: nowrap; min-width: 160px; flex-shrink: 0;">{{ h.key }}</span>
-      <span style="color: var(--text-primary); word-break: break-all;">{{ isMaskable(h.key) ? maskIf(h.value) : h.value }}</span>
+      <span class="header-key">{{ h.key }}</span>
+      <span class="header-value">{{ isMaskable(h.key) ? maskIf(h.value) : h.value }}</span>
     </div>
   </div>
-  <div v-else style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 10px;">（无内容）</div>
+  <div v-else class="empty-state">（无内容）</div>
 </template>
+
+<style scoped>
+.headers-viewer {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.header-row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: baseline;
+}
+.header-row:last-child { border-bottom: none; }
+.header-key {
+  color: var(--accent);
+  white-space: nowrap;
+  min-width: 160px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.header-value {
+  color: var(--text-primary);
+  word-break: break-all;
+}
+.empty-state {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 16px;
+}
+</style>

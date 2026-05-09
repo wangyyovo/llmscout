@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5b6cf0"/>
+      <stop offset="1" stop-color="#7c8cf8"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#e2e4f0" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="32" y1="32" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#cdd6f4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded hexagon background -->
+  <path d="M64 8l48 28v56L64 120 16 92V36L64 8z" fill="url(#bg)" rx="12"/>
+
+  <!-- Magnifying glass lens -->
+  <circle cx="50" cy="50" r="18" fill="url(#lens)" opacity="0.95"/>
+  <circle cx="50" cy="50" r="14" fill="none" stroke="#5b6cf0" stroke-width="3.5" opacity="0.9"/>
+
+  <!-- Magnifying glass handle -->
+  <line x1="64" y1="64" x2="79" y2="79" stroke="url(#handle)" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- AI sparkle dots around the lens -->
+  <circle cx="37" cy="37" r="2.5" fill="#e2e4f0"/>
+  <circle cx="63" cy="37" r="1.8" fill="#e2e4f0"/>
+  <circle cx="48" cy="33" r="1.5" fill="#e2e4f0"/>
+  <circle cx="35" cy="52" r="2" fill="#e2e4f0"/>
+  <circle cx="50" cy="67" r="1.8" fill="#e2e4f0"/>
+
+  <!-- Scout trail / connection dots -->
+  <circle cx="82" cy="82" r="2" fill="#fff" opacity="0.7"/>
+  <circle cx="90" cy="86" r="1.5" fill="#fff" opacity="0.5"/>
+  <circle cx="96" cy="91" r="1" fill="#fff" opacity="0.3"/>
+
+  <!-- LLM network lines (subtle) -->
+  <path d="M42 38L48 35" stroke="#fff" stroke-width="1" opacity="0.5"/>
+  <path d="M58 38L55 35" stroke="#fff" stroke-width="1" opacity="0.4"/>
+  <path d="M38 50L35 48" stroke="#fff" stroke-width="1" opacity="0.5"/>
+</svg>
