@@ -232,6 +232,11 @@ function summaryText(msg) {
   return t.length > 60 ? t.slice(0, 60) + '...' : t
 }
 
+function isFailed(msg, tc) {
+  if (!msg.tool_results) return false
+  return msg.tool_results.some(tr => tr.id === tc.id && tr.isError)
+}
+
 function tryParseJson(str) {
   if (!str) return null
   try { return JSON.parse(str) } catch { return null }
@@ -321,10 +326,12 @@ const roleColors = {
           <div v-if="msg.tool_calls && msg.tool_calls.length" style="margin-top: 8px;">
             <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;">🔧 工具调用:</div>
             <div v-for="(tc, j) in msg.tool_calls" :key="j" style="margin-top: 4px;">
-              <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #89dceb;">
+              <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px;"
+                :style="{ borderLeft: '2px solid ' + (isFailed(msg, tc) ? '#f38ba8' : '#89dceb') }">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <code style="color: #89dceb; font-size: 13px; font-weight: bold;">{{ tc.function.name }}</code>
                   <span v-if="tc.id" style="color: var(--text-muted); font-size: 10px;">{{ tc.id }}</span>
+                  <n-tag v-if="isFailed(msg, tc)" size="tiny" type="error">✗ 失败</n-tag>
                 </div>
                 <div v-if="tc.function.arguments" style="margin-top: 6px;">
                   <template v-if="tryParseJson(tc.function.arguments)">
