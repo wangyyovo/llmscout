@@ -73,14 +73,14 @@ onUnmounted(() => {
       </n-space>
     </n-card>
 
-    <div style="display: flex; gap: 20px; margin-top: 20px;">
-      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
+    <div style="display: flex; gap: 16px; margin-top: 20px;">
+      <n-card style="background: var(--bg-card); border: none; flex: 1; border-left: 3px solid var(--accent);" size="small">
         <n-statistic label="已配置路由" :value="routeCount" />
       </n-card>
-      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
+      <n-card style="background: var(--bg-card); border: none; flex: 1; border-left: 3px solid #a6e3a1;" size="small">
         <n-statistic label="今日请求" :value="todayCount" />
       </n-card>
-      <n-card style="background: var(--bg-card); border: none; flex: 1;" size="small">
+      <n-card style="background: var(--bg-card); border: none; flex: 1; border-left: 3px solid #fab387;" size="small">
         <n-statistic label="运行时长" :value="uptime || '-'" />
       </n-card>
     </div>

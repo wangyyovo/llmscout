@@ -77,7 +77,8 @@ const layoutStyle = computed(() => ({
 </template>
 
 <style>
-html, body { margin: 0; padding: 0; height: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif; }
 
 /* Dark theme (default) */
 body, .theme-dark {
@@ -86,10 +87,15 @@ body, .theme-dark {
   --bg-sider: #1e1e2e;
   --bg-code: #11111b;
   --bg-message: #1e1e2e;
+  --bg-hover: rgba(137,180,250,0.04);
   --border-color: #313244;
   --text-primary: #cdd6f4;
   --text-secondary: #a6adc8;
   --text-muted: #6c7086;
+  --accent: #89b4fa;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --radius: 8px;
+  --radius-sm: 4px;
 }
 
 /* Light theme */
@@ -99,16 +105,24 @@ body, .theme-dark {
   --bg-sider: #fafafa;
   --bg-code: #f0f0f0;
   --bg-message: #f8f8f8;
+  --bg-hover: rgba(0,0,0,0.03);
   --border-color: #e0e0e0;
   --text-primary: #333333;
   --text-secondary: #666666;
   --text-muted: #999999;
+  --accent: #2563eb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --radius: 8px;
+  --radius-sm: 4px;
 }
 
-body { background: var(--bg-main); }
+body { background: var(--bg-main); color: var(--text-primary); }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.n-card { transition: box-shadow 0.15s ease; }
+.n-card:hover { box-shadow: var(--shadow); }
 </style>
