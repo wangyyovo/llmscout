@@ -98,25 +98,23 @@ const themeOverrides = {
           :native-scrollbar="false"
           :style="siderStyle"
         >
-          <div class="sider-inner" :style="{ display: 'flex', flexDirection: 'column', height: '100%' }">
-            <div class="sider-brand" :class="{ 'sider-brand-collapsed': sidebarCollapsed }">
-              <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
-              <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
-            </div>
-            <n-menu
-              :collapsed="sidebarCollapsed"
-              :collapsed-width="56"
-              :collapsed-icon-size="20"
-              :options="menuOptions"
-              :value="activeTab"
-              @update:value="handleUpdate"
-            />
-            <div class="sider-footer">
-              <button class="collapse-btn" @click="collapsed = !collapsed" :title="sidebarCollapsed ? '展开菜单' : '收起菜单'">
-                <n-icon size="18"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
-                <span v-show="!sidebarCollapsed" class="collapse-label">收起菜单</span>
-              </button>
-            </div>
+          <div class="sider-brand" :class="{ 'sider-brand-collapsed': sidebarCollapsed }">
+            <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
+            <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
+          </div>
+          <n-menu
+            :collapsed="sidebarCollapsed"
+            :collapsed-width="56"
+            :collapsed-icon-size="20"
+            :options="menuOptions"
+            :value="activeTab"
+            @update:value="handleUpdate"
+          />
+          <div class="sider-footer">
+            <button class="collapse-btn" @click="collapsed = !collapsed" :title="sidebarCollapsed ? '展开菜单' : '收起菜单'">
+              <n-icon size="18"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
+              <span v-show="!sidebarCollapsed" class="collapse-label">收起菜单</span>
+            </button>
           </div>
         </n-layout-sider>
         <n-layout :content-style="layoutStyle">
@@ -225,11 +223,20 @@ body { background: var(--bg-main); color: var(--text-primary); }
   white-space: nowrap;
 }
 
-/* Sidebar footer */
+/* Sidebar footer — pinned to bottom */
+.n-layout-sider {
+  transition: width 0.25s ease !important;
+  position: relative !important;
+}
 .sider-footer {
-  margin-top: auto;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 10px;
   border-top: 1px solid var(--border-color);
+  background: var(--bg-sider);
+  z-index: 2;
 }
 .collapse-btn {
   color: var(--text-muted);
