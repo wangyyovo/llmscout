@@ -233,8 +233,18 @@ function summaryText(msg) {
 }
 
 function isFailed(msg, tc) {
-  if (!msg.tool_results) return false
-  return msg.tool_results.some(tr => tr.id === tc.id && tr.isError)
+  // Anthropic: check tool_results in same message
+  if (msg.tool_results && msg.tool_results.some(tr => tr.id === tc.id && tr.isError)) return true
+  // OpenAI: check across all messages for error tool responses
+  if (messages.value) {
+    for (const m of messages.value) {
+      if (m.role === 'tool' && m.tool_call_id === tc.id) {
+        const c = typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+        if (c.toLowerCase().includes('error')) return true
+      }
+    }
+  }
+  return false
 }
 
 function tryParseJson(str) {
