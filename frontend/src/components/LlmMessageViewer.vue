@@ -95,7 +95,7 @@ const messages = computed(() => {
           }
           else if (b.type === 'tool_result') {
             if (!msg.tool_results) msg.tool_results = []
-            msg.tool_results.push({ id: b.tool_use_id, content: b.content })
+            msg.tool_results.push({ id: b.tool_use_id, content: b.content, isError: b.is_error || false })
           }
           else texts.push(JSON.stringify(b))
         }
@@ -343,7 +343,11 @@ const roleColors = {
           <div v-if="msg.tool_results && msg.tool_results.length" style="margin-top: 8px;">
             <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;">📋 工具结果:</div>
             <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #a6e3a1;">
-              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;">id: {{ tr.id }}</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <span style="color: var(--text-muted); font-size: 11px;">id: {{ tr.id }}</span>
+                <n-tag v-if="tr.isError" size="tiny" type="error">✗ 失败</n-tag>
+                <n-tag v-else size="tiny" type="success">✓ 成功</n-tag>
+              </div>
               <template v-if="tryParseJson(tr.content)">
                 <div v-for="(val, key) in tryParseJson(tr.content)" :key="key" style="display: flex; align-items: baseline; gap: 6px; padding: 3px 6px; font-size: 12px;">
                   <code style="color: #89dceb; white-space: nowrap;">{{ key }}</code>
