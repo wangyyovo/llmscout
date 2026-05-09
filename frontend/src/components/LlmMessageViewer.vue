@@ -93,8 +93,8 @@ const messages = computed(() => {
           else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
           else texts.push(JSON.stringify(b))
         }
-        msg.content = texts.filter(t => t != null && ('' + t).trim()).join('\n')
-        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).join('\n')
+        msg.content = texts.filter(t => t != null && ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
+        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
       }
       msgs.push(msg)
     }
