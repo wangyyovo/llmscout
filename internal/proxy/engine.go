@@ -124,6 +124,8 @@ func (e *Engine) SetPort(port int) {
 func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
+	requestURL := "http://" + r.Host + r.URL.RequestURI()
+
 	targetURL, routeName, ok := e.matcher.Match(r.URL.Path)
 	if !ok {
 		http.Error(w, "No matching route for path: "+r.URL.Path, http.StatusBadGateway)
@@ -131,6 +133,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:  "unknown",
 			Method:     r.Method,
 			Path:       r.URL.Path,
+			RequestURL: requestURL,
 			TargetURL:  "",
 			StatusCode: 502,
 			LatencyMs:  time.Since(start).Milliseconds(),
@@ -159,6 +162,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:  routeName,
 			Method:     r.Method,
 			Path:       r.URL.Path,
+			RequestURL: requestURL,
 			TargetURL:  targetURL,
 			StatusCode: 502,
 			LatencyMs:  time.Since(start).Milliseconds(),
@@ -205,6 +209,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:   routeName,
 			Method:      r.Method,
 			Path:        r.URL.Path,
+			RequestURL:  requestURL,
 			TargetURL:   targetURL,
 			StatusCode:  resp.StatusCode,
 			LatencyMs:   time.Since(start).Milliseconds(),
@@ -225,6 +230,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:   routeName,
 			Method:      r.Method,
 			Path:        r.URL.Path,
+			RequestURL:  requestURL,
 			TargetURL:   targetURL,
 			StatusCode:  resp.StatusCode,
 			LatencyMs:   time.Since(start).Milliseconds(),

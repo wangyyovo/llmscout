@@ -37,6 +37,7 @@ func migrate(db *sql.DB) error {
 		route_name TEXT NOT NULL,
 		method TEXT NOT NULL,
 		path TEXT NOT NULL,
+		request_url TEXT NOT NULL DEFAULT '',
 		target_url TEXT NOT NULL DEFAULT '',
 		protocol TEXT NOT NULL DEFAULT 'REST',
 		status_code INTEGER,
@@ -57,7 +58,8 @@ func migrate(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	// Migration: add target_url column to existing logs table
+	// Migration: add new columns to existing logs table
+	db.Exec("ALTER TABLE logs ADD COLUMN request_url TEXT NOT NULL DEFAULT ''")
 	db.Exec("ALTER TABLE logs ADD COLUMN target_url TEXT NOT NULL DEFAULT ''")
 	return nil
 }
