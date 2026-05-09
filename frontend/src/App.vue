@@ -112,12 +112,10 @@ const themeOverrides = {
               @update:value="handleUpdate"
             />
             <div class="sider-footer">
-              <n-button quaternary size="small" @click="collapsed = !collapsed" class="collapse-btn">
-                <template #icon>
-                  <n-icon size="18"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
-                </template>
+              <button class="collapse-btn" @click="collapsed = !collapsed" :title="sidebarCollapsed ? '展开菜单' : '收起菜单'">
+                <n-icon size="18"><ChevronBackOutline v-if="!sidebarCollapsed" /><ChevronForwardOutline v-else /></n-icon>
                 <span v-show="!sidebarCollapsed" class="collapse-label">收起菜单</span>
-              </n-button>
+              </button>
             </div>
           </div>
         </n-layout-sider>
@@ -230,22 +228,38 @@ body { background: var(--bg-main); color: var(--text-primary); }
 /* Sidebar footer */
 .sider-footer {
   margin-top: auto;
-  padding: 10px 8px;
-  text-align: center;
+  padding: 10px;
   border-top: 1px solid var(--border-color);
 }
 .collapse-btn {
   color: var(--text-muted);
   width: 100%;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: color var(--transition);
   border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  outline: none;
 }
-.collapse-btn:hover { color: var(--text-secondary); }
-.collapse-label { font-size: 12px; }
+.collapse-btn:hover {
+  color: var(--accent);
+  background: rgba(124,140,248,0.08);
+}
+.collapse-btn:active {
+  background: rgba(124,140,248,0.12);
+}
+.collapse-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
 
 /* Sidebar internal layout */
 .n-layout-sider {
