@@ -16,6 +16,12 @@ A desktop LLM API debugging proxy — capture, inspect, and replay LLM API calls
 - **深色/浅色主题 / Dark & Light Theme** — 跟随系统或手动切换
 - **响应式布局 / Responsive Layout** — 自适应窗口尺寸，移动端友好
 
+## 截图 / Screenshots
+
+![日志页面 / Log Viewer](assert/1.PNG)
+
+![详情面板 / Detail Panel](assert/2.PNG)
+
 ## 技术栈 / Tech Stack
 
 | 层 / Layer | 技术 / Technology |
