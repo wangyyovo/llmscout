@@ -187,9 +187,6 @@ const roleColors = {
           <markdown-renderer v-if="sseContent.content" :content="sseContent.content" />
           <span v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</span>
         </div>
-        <div v-if="sseContent.stopReason" style="margin-top: 8px;">
-          <n-tag size="tiny" type="info">finish: {{ sseContent.stopReason }}</n-tag>
-        </div>
       </template>
 
       <!-- Non-SSE: no LLM content fallback -->
