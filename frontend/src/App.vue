@@ -98,7 +98,7 @@ const themeOverrides = {
           :native-scrollbar="false"
           :style="siderStyle"
         >
-          <div class="sider-brand">
+          <div class="sider-brand" :class="{ 'sider-brand-collapsed': sidebarCollapsed }">
             <img :src="logoSvg" class="sider-logo" alt="LLM Scout" />
             <span v-show="!sidebarCollapsed" class="sider-title">LLM Scout</span>
           </div>
@@ -200,12 +200,24 @@ body { background: var(--bg-main); color: var(--text-primary); }
   padding: 20px 18px 16px;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 8px;
+  transition: padding 0.25s ease, justify-content 0.25s ease;
+}
+.sider-brand-collapsed {
+  padding: 18px 10px 14px;
+  justify-content: center;
+  border-bottom: none;
+  margin-bottom: 4px;
 }
 .sider-logo {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
   border-radius: 6px;
+  transition: width 0.25s ease, height 0.25s ease;
+}
+.sider-brand-collapsed .sider-logo {
+  width: 32px;
+  height: 32px;
 }
 .sider-title {
   font-size: 16px;
