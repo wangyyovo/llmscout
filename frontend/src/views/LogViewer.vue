@@ -255,24 +255,32 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       />
     </div>
 
-    <n-modal v-model:show="showDetail" preset="card" title="请求详情" class="detail-modal" :bordered="false">
+    <n-modal
+      v-model:show="showDetail"
+      preset="card"
+      title="请求详情"
+      class="detail-modal"
+      :bordered="false"
+    >
       <template v-if="detailLog">
-        <n-tabs type="line" animated>
-          <n-tab-pane name="req" tab="请求">
-            <llm-message-viewer :data="detailLog.reqBody" mode="request" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
-          </n-tab-pane>
-          <n-tab-pane name="resp" tab="响应">
-            <llm-message-viewer :data="detailLog.respBody" mode="response" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
-          </n-tab-pane>
-          <n-tab-pane name="reqHeaders" tab="请求头">
-            <headers-viewer v-if="!showRaw" :data="detailLog.reqHeaders" />
-            <json-viewer v-else :data="detailLog.reqHeaders" />
-          </n-tab-pane>
-          <n-tab-pane name="respHeaders" tab="响应头">
-            <headers-viewer v-if="!showRaw" :data="detailLog.respHeaders" />
-            <json-viewer v-else :data="detailLog.respHeaders" />
-          </n-tab-pane>
-        </n-tabs>
+        <div class="detail-body">
+          <n-tabs type="line" animated>
+            <n-tab-pane name="req" tab="请求">
+              <llm-message-viewer :data="detailLog.reqBody" mode="request" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
+            </n-tab-pane>
+            <n-tab-pane name="resp" tab="响应">
+              <llm-message-viewer :data="detailLog.respBody" mode="response" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
+            </n-tab-pane>
+            <n-tab-pane name="reqHeaders" tab="请求头">
+              <headers-viewer v-if="!showRaw" :data="detailLog.reqHeaders" />
+              <json-viewer v-else :data="detailLog.reqHeaders" />
+            </n-tab-pane>
+            <n-tab-pane name="respHeaders" tab="响应头">
+              <headers-viewer v-if="!showRaw" :data="detailLog.respHeaders" />
+              <json-viewer v-else :data="detailLog.respHeaders" />
+            </n-tab-pane>
+          </n-tabs>
+        </div>
       </template>
     </n-modal>
   </div>
@@ -427,18 +435,23 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 }
 .page-size-select { width: 72px; }
 
-/* Detail modal — sticky header so close button doesn't scroll away */
+/* Detail modal */
 .detail-modal { max-width: 860px; }
-:deep(.detail-modal .n-card > .n-card-header) {
+.detail-body {
+  max-height: calc(80vh - 100px);
+  overflow-y: auto;
+}
+</style>
+
+<style>
+/* Non-scoped: modal is teleported outside component, scoped styles can't reach it.
+   Use a specific class prefix to avoid polluting global scope. */
+.detail-modal .n-card > .n-card-header {
   position: sticky;
   top: 0;
   z-index: 10;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 14px;
-}
-:deep(.detail-modal .n-card > .n-card__content) {
-  max-height: 70vh;
-  overflow-y: auto;
 }
 </style>
