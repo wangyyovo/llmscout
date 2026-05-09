@@ -4,6 +4,7 @@ import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, N
 import { QueryLogs, GetLog, GetLogRouteNames, DeleteLogs } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
 import LlmMessageViewer from '../components/LlmMessageViewer.vue'
+import HeadersViewer from '../components/HeadersViewer.vue'
 
 const logs = ref([])
 const total = ref(0)
@@ -226,10 +227,12 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <llm-message-viewer :data="detailLog.respBody" mode="response" :showRaw="showRaw" @update:showRaw="showRaw = $event" />
           </n-tab-pane>
           <n-tab-pane name="reqHeaders" tab="请求头">
-            <json-viewer :data="detailLog.reqHeaders" />
+            <headers-viewer v-if="!showRaw" :data="detailLog.reqHeaders" />
+            <json-viewer v-else :data="detailLog.reqHeaders" />
           </n-tab-pane>
           <n-tab-pane name="respHeaders" tab="响应头">
-            <json-viewer :data="detailLog.respHeaders" />
+            <headers-viewer v-if="!showRaw" :data="detailLog.respHeaders" />
+            <json-viewer v-else :data="detailLog.respHeaders" />
           </n-tab-pane>
         </n-tabs>
       </template>
