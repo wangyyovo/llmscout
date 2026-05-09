@@ -73,17 +73,56 @@ const modelInfo = computed(() => {
 const messages = computed(() => {
   if (!parsed.value) return null
   // Request format: { messages: [...] }
-  if (parsed.value.messages) return parsed.value.messages
+  if (parsed.value.messages) {
+    const msgs = []
+    // Anthropic: system as separate field -> virtual system message
+    if (parsed.value.system) {
+      msgs.push({ role: 'system', content: typeof parsed.value.system === 'string' ? parsed.value.system : parsed.value.system.map(b => b.text || '').join('\n') })
+    }
+    for (const m of parsed.value.messages) {
+      const msg = { ...m }
+      // Anthropic: content is array of blocks -> normalize to string for markdown
+      if (Array.isArray(m.content)) {
+        const texts = []
+        let reasoning = []
+        for (const b of m.content) {
+          if (b.type === 'text') texts.push(b.text)
+          else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
+          else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
+          else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
+          else texts.push(JSON.stringify(b))
+        }
+        msg.content = texts.join('\n')
+        if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.join('\n')
+      }
+      msgs.push(msg)
+    }
+    return msgs
+  }
   // OpenAI response format: { choices: [{ message: {...} }] }
   if (parsed.value.choices) {
     const msgs = []
     for (const c of parsed.value.choices) {
       if (c.message) msgs.push(c.message)
-      // Streaming: choices with delta
       else if (c.delta && c.delta.content) msgs.push({ role: c.delta.role || 'assistant', content: c.delta.content })
       else if (c.delta && c.delta.reasoning_content) msgs.push({ role: 'assistant', reasoning_content: c.delta.reasoning_content })
     }
     if (msgs.length > 0) return msgs
+  }
+  // Anthropic response format: { role: "assistant", content: [...] }
+  if (parsed.value.content && Array.isArray(parsed.value.content) && parsed.value.role) {
+    const texts = []
+    let reasoning = []
+    for (const b of parsed.value.content) {
+      if (b.type === 'text') texts.push(b.text)
+      else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
+      else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
+      else texts.push(JSON.stringify(b))
+    }
+    const msg = { role: parsed.value.role, content: texts.join('\n') }
+    if (reasoning.length) msg.reasoning_content = reasoning.join('\n')
+    if (parsed.value.stop_reason) msg.stop_reason = parsed.value.stop_reason
+    return [msg]
   }
   return null
 })
