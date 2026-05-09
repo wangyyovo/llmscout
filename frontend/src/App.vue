@@ -2,7 +2,7 @@
 import { ref, shallowRef, h, computed, onMounted, onUnmounted } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton, NIcon } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
-import { ServerOutline, GitBranchOutline, DocumentTextOutline, SettingsOutline } from '@vicons/ionicons5'
+import { ServerOutline, GitBranchOutline, DocumentTextOutline, SettingsOutline, ChevronBackOutline, ChevronForwardOutline } from '@vicons/ionicons5'
 import ProxyPanel from './views/ProxyPanel.vue'
 import RoutePanel from './views/RoutePanel.vue'
 import LogViewer from './views/LogViewer.vue'
@@ -111,14 +111,21 @@ const themeOverrides = {
           <template #collapse-extra>
             <div class="sider-footer">
               <n-button quaternary size="small" @click="collapsed = !collapsed" class="collapse-btn">
-                <span class="collapse-arrow">{{ collapsed ? '»' : '«' }}</span>
+                <template #icon>
+                  <n-icon size="16"><ChevronBackOutline v-if="!collapsed" /><ChevronForwardOutline v-else /></n-icon>
+                </template>
                 <span v-show="!collapsed" class="collapse-label">收起菜单</span>
               </n-button>
             </div>
           </template>
         </n-layout-sider>
         <n-layout :content-style="layoutStyle">
-          <component :is="currentView" />
+          <div class="content-area">
+            <button class="sidebar-toggle" @click="collapsed = !collapsed" :title="collapsed ? '展开菜单' : '收起菜单'">
+              <n-icon size="18"><ChevronForwardOutline v-if="collapsed" /><ChevronBackOutline v-else /></n-icon>
+            </button>
+            <component :is="currentView" />
+          </div>
         </n-layout>
       </n-layout>
     </n-message-provider>
@@ -213,7 +220,7 @@ body { background: var(--bg-main); color: var(--text-primary); }
 
 /* Sidebar footer */
 .sider-footer {
-  padding: 10px 8px;
+  padding: 8px;
   text-align: center;
   border-top: 1px solid var(--border-color);
 }
@@ -225,10 +232,15 @@ body { background: var(--bg-main); color: var(--text-primary); }
   justify-content: center;
   gap: 6px;
   transition: color var(--transition);
+  border-radius: var(--radius-sm);
 }
 .collapse-btn:hover { color: var(--text-secondary); }
-.collapse-arrow { font-size: 14px; }
 .collapse-label { font-size: 12px; }
+
+/* Sidebar width transition */
+.n-layout-sider {
+  transition: width 0.25s ease !important;
+}
 
 /* Page section headers */
 .page-header {
@@ -271,6 +283,36 @@ body { background: var(--bg-main); color: var(--text-primary); }
 /* Fade transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Sidebar quick toggle */
+.content-area {
+  position: relative;
+  height: 100%;
+}
+.sidebar-toggle {
+  position: absolute;
+  left: -4px;
+  top: 12px;
+  z-index: 100;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.sidebar-toggle:hover {
+  opacity: 1;
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
 
 /* Responsive */
 @media (max-width: 900px) {
