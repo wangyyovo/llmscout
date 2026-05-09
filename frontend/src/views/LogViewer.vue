@@ -245,3 +245,8 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     </n-modal>
   </div>
 </template>
+
+<style scoped>
+:deep(.n-table tbody tr:hover) { background: var(--bg-hover) !important; }
+:deep(.n-table tbody tr) { transition: background 0.15s ease; }
+</style>

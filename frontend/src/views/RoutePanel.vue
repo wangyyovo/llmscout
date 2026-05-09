@@ -63,7 +63,7 @@ onMounted(load)
     </div>
 
     <n-card v-for="rule in rules" :key="rule.id"
-      style="background: var(--bg-card); border: none; margin-bottom: 8px;">
+      style="background: var(--bg-card); border: none; margin-bottom: 8px; border-left: 3px solid var(--accent); transition: all 0.15s ease;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <n-tag :type="rule.type === 'prefix' ? 'info' : 'warning'" size="small">
           {{ rule.type }}
