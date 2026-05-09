@@ -91,7 +91,7 @@ const messages = computed(() => {
           if (b.type === 'text') texts.push(b.text)
           else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
           else if (b.type === 'tool_use') {
-            toolCalls.push({ function: { name: b.name, arguments: JSON.stringify(b.input) } })
+            toolCalls.push({ id: b.id, function: { name: b.name, arguments: JSON.stringify(b.input) } })
           }
           else if (b.type === 'tool_result') {
             if (!msg.tool_results) msg.tool_results = []
@@ -126,7 +126,7 @@ const messages = computed(() => {
       if (b.type === 'text') texts.push(b.text)
       else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
       else if (b.type === 'tool_use') {
-        toolCalls.push({ function: { name: b.name, arguments: JSON.stringify(b.input) } })
+        toolCalls.push({ id: b.id, function: { name: b.name, arguments: JSON.stringify(b.input) } })
       }
       else texts.push(JSON.stringify(b))
     }
@@ -313,7 +313,10 @@ const roleColors = {
             <div style="color: #89dceb; font-size: 12px; margin-bottom: 4px;">🔧 工具调用:</div>
             <div v-for="(tc, j) in msg.tool_calls" :key="j" style="margin-top: 4px;">
               <div v-if="tc.function" style="padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #89dceb;">
-                <code style="color: #89dceb; font-size: 13px; font-weight: bold;">{{ tc.function.name }}</code>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <code style="color: #89dceb; font-size: 13px; font-weight: bold;">{{ tc.function.name }}</code>
+                  <span v-if="tc.id" style="color: var(--text-muted); font-size: 10px;">{{ tc.id }}</span>
+                </div>
                 <div v-if="tc.function.arguments" style="margin-top: 6px;">
                   <template v-if="tryParseJson(tc.function.arguments)">
                     <div v-for="(val, key) in tryParseJson(tc.function.arguments)" :key="key" style="display: flex; align-items: baseline; gap: 6px; padding: 3px 6px; font-size: 12px;">
