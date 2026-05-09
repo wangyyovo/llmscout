@@ -93,7 +93,10 @@ const messages = computed(() => {
           else if (b.type === 'tool_use') {
             toolCalls.push({ function: { name: b.name, arguments: JSON.stringify(b.input) } })
           }
-          else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
+          else if (b.type === 'tool_result') {
+            if (!msg.tool_results) msg.tool_results = []
+            msg.tool_results.push({ id: b.tool_use_id, content: b.content })
+          }
           else texts.push(JSON.stringify(b))
         }
         msg.content = texts.filter(t => t != null && ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
@@ -322,6 +325,14 @@ const roleColors = {
                   <pre v-else style="color: var(--text-primary); font-size: 11px; white-space: pre-wrap;">{{ tc.function.arguments }}</pre>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div v-if="msg.tool_results && msg.tool_results.length" style="margin-top: 8px;">
+            <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;">📋 工具结果:</div>
+            <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #a6e3a1;">
+              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 2px;">id: {{ tr.id }}</div>
+              <div style="color: var(--text-primary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">{{ typeof tr.content === 'string' ? tr.content : JSON.stringify(tr.content) }}</div>
             </div>
           </div>
         </div>
