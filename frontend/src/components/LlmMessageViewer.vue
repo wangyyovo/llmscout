@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onErrorCaptured } from 'vue'
 import { NCollapse, NCollapseItem, NTag, NButton } from 'naive-ui'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
@@ -10,6 +10,12 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:showRaw'])
+const renderFailed = ref(false)
+onErrorCaptured((err) => {
+  console.error('LlmMessageViewer render error:', err)
+  renderFailed.value = true
+  return false
+})
 
 const parsed = computed(() => {
   if (!props.data) return null
@@ -154,7 +160,10 @@ const roleColors = {
 </script>
 
 <template>
-  <div>
+  <div v-if="renderFailed">
+    <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px; font-size: 12px; color: var(--text-primary); white-space: pre-wrap; overflow-x: auto;">{{ data || '（无数据）' }}</pre>
+  </div>
+  <div v-else>
     <!-- Model info row + raw toggle -->
     <div v-if="hasLLMContent || sseContent || parsed" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
       <n-tag v-if="modelInfo || (sseContent && sseContent.model)" size="small" type="primary">{{ modelInfo || sseContent.model }}</n-tag>
