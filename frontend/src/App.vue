@@ -17,6 +17,11 @@ function scrollToTop() {
   if (el) el.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+function scrollToBottom() {
+  const el = document.querySelector('.n-layout-scroll-container') || document.documentElement
+  if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+}
+
 const menuOptions = [
   { label: () => '代理', key: 'proxy', icon: () => h('span', '📡') },
   { label: () => '路由', key: 'routes', icon: () => h('span', '🔀') },
@@ -78,12 +83,14 @@ const layoutStyle = computed(() => ({
         </n-layout>
       </n-layout>
     </n-message-provider>
-    <Transition name="fade">
-      <n-button circle size="medium" @click="scrollToTop"
-        style="position: fixed; bottom: 24px; right: 24px; z-index: 100; opacity: 0.85;">
+    <div style="position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 8px;">
+      <n-button circle size="medium" type="primary" @click="scrollToTop">
         ↑
       </n-button>
-    </Transition>
+      <n-button circle size="medium" type="primary" @click="scrollToBottom">
+        ↓
+      </n-button>
+    </div>
   </n-config-provider>
 </template>
 
