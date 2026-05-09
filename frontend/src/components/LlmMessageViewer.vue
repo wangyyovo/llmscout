@@ -331,8 +331,15 @@ const roleColors = {
           <div v-if="msg.tool_results && msg.tool_results.length" style="margin-top: 8px;">
             <div style="color: #a6e3a1; font-size: 12px; margin-bottom: 4px;">📋 工具结果:</div>
             <div v-for="(tr, j) in msg.tool_results" :key="j" style="margin-top: 4px; padding: 8px; background: var(--bg-code); border-radius: 4px; border-left: 2px solid #a6e3a1;">
-              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 2px;">id: {{ tr.id }}</div>
-              <div style="color: var(--text-primary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">{{ typeof tr.content === 'string' ? tr.content : JSON.stringify(tr.content) }}</div>
+              <div style="color: var(--text-muted); font-size: 11px; margin-bottom: 4px;">id: {{ tr.id }}</div>
+              <template v-if="tryParseJson(tr.content)">
+                <div v-for="(val, key) in tryParseJson(tr.content)" :key="key" style="display: flex; align-items: baseline; gap: 6px; padding: 3px 6px; font-size: 12px;">
+                  <code style="color: #89dceb; white-space: nowrap;">{{ key }}</code>
+                  <span style="color: var(--text-muted);">=</span>
+                  <span style="color: #a6e3a1; word-break: break-all;">{{ typeof val === 'string' ? val : JSON.stringify(val) }}</span>
+                </div>
+              </template>
+              <div v-else style="color: var(--text-primary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">{{ typeof tr.content === 'string' ? tr.content : JSON.stringify(tr.content) }}</div>
             </div>
           </div>
         </div>
