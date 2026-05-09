@@ -5,7 +5,7 @@ import { GetSetting, SetSetting } from '../../wailsjs/go/main/App'
 const THEME_KEY = 'theme'
 
 // Shared state
-const mode = ref('dark')
+const mode = ref('system')
 const systemDark = ref(false)
 let initialized = false
 
@@ -19,7 +19,7 @@ if (typeof window !== 'undefined') {
 export function useTheme() {
   if (!initialized) {
     initialized = true
-    GetSetting(THEME_KEY, 'dark').then(val => {
+    GetSetting(THEME_KEY, 'system').then(val => {
       mode.value = val
     })
   }
