@@ -128,6 +128,21 @@ func (r *LogsRepo) DeleteAll() error {
 	return err
 }
 
+func (r *LogsRepo) DeleteByIDs(ids []int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	placeholders := make([]string, len(ids))
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+	query := "DELETE FROM logs WHERE id IN (" + strings.Join(placeholders, ",") + ")"
+	_, err := r.db.Exec(query, args...)
+	return err
+}
+
 func (r *LogsRepo) GetRouteNames() ([]string, error) {
 	rows, err := r.db.Query("SELECT DISTINCT route_name FROM logs ORDER BY route_name")
 	if err != nil {

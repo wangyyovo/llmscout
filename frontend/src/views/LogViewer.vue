@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, onErrorCaptured } from 'vue'
 import { NInput, NSelect, NButton, NTag, NTable, NPagination, NSwitch, NModal, NTabs, NTabPane } from 'naive-ui'
-import { QueryLogs, GetLog, GetLogRouteNames } from '../../wailsjs/go/main/App'
+import { QueryLogs, GetLog, GetLogRouteNames, DeleteLogs } from '../../wailsjs/go/main/App'
 import JsonViewer from '../components/JsonViewer.vue'
 import LlmMessageViewer from '../components/LlmMessageViewer.vue'
 
@@ -20,6 +20,36 @@ const routeName = ref('')
 const statusCode = ref(null)
 const protocol = ref('')
 const routeOptions = ref([])
+const selectedIds = ref([])
+
+function toggleSelect(id) {
+  const idx = selectedIds.value.indexOf(id)
+  if (idx >= 0) {
+    selectedIds.value.splice(idx, 1)
+  } else {
+    selectedIds.value.push(id)
+  }
+}
+
+function selectAll() {
+  if (selectedIds.value.length === logs.value.length) {
+    selectedIds.value = []
+  } else {
+    selectedIds.value = logs.value.map(l => l.id)
+  }
+}
+
+function isSelected(id) {
+  return selectedIds.value.includes(id)
+}
+
+async function deleteSelected() {
+  if (selectedIds.value.length === 0) return
+  const ids = selectedIds.value.map(Number)
+  await DeleteLogs(ids)
+  selectedIds.value = []
+  load()
+}
 
 let timer = null
 
@@ -135,9 +165,16 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     </div>
 
     <div style="background: var(--bg-card); border-radius: 8px; overflow: hidden;">
+      <div v-if="selectedIds.length > 0" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 6px 12px; background: var(--bg-card); border-radius: 6px;">
+        <span style="color: var(--text-secondary); font-size: 12px;">已选 {{ selectedIds.length }} 条</span>
+        <n-button size="tiny" type="error" @click="deleteSelected">删除选中</n-button>
+      </div>
       <n-table :single-line="false" style="background: transparent;">
         <thead>
           <tr style="background: var(--border-color);">
+            <th style="width: 36px;">
+              <input type="checkbox" :checked="selectedIds.length === logs.length && logs.length > 0" @click.stop="selectAll()" style="cursor: pointer;" />
+            </th>
             <th style="color: var(--text-secondary); width: 55px;">协议</th>
             <th style="color: var(--text-secondary); width: 55px;">方法</th>
             <th style="color: var(--text-secondary); width: 65px;">状态</th>
@@ -148,17 +185,20 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
           </tr>
         </thead>
         <tbody>
-          <tr v-for="log in logs" :key="log.id" @click="openDetail(log.id)" style="cursor: pointer;">
-            <td><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
-            <td style="color: #89b4fa;">{{ log.method }}</td>
-            <td><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
-            <td style="color: var(--text-primary);">{{ log.routeName }}</td>
-            <td><code style="color: #a6e3a1; font-size: 12px;">{{ log.path }}</code></td>
-            <td style="color: var(--text-primary);">{{ formatLatency(log.latencyMs) }}</td>
-            <td style="color: var(--text-secondary); font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
+          <tr v-for="log in logs" :key="log.id" style="cursor: pointer;">
+            <td @click.stop>
+              <input type="checkbox" :checked="isSelected(log.id)" @click.stop="toggleSelect(log.id)" style="cursor: pointer;" />
+            </td>
+            <td @click="openDetail(log.id)"><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
+            <td @click="openDetail(log.id)" style="color: #89b4fa;">{{ log.method }}</td>
+            <td @click="openDetail(log.id)"><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
+            <td @click="openDetail(log.id)" style="color: var(--text-primary);">{{ log.routeName }}</td>
+            <td @click="openDetail(log.id)"><code style="color: #a6e3a1; font-size: 12px;">{{ log.path }}</code></td>
+            <td @click="openDetail(log.id)" style="color: var(--text-primary);">{{ formatLatency(log.latencyMs) }}</td>
+            <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
-            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
           </tr>
         </tbody>
       </n-table>

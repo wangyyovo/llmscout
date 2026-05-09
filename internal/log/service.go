@@ -12,6 +12,7 @@ type entryRepo interface {
 	Query(Filter) (QueryResult, error)
 	Get(int64) (*Entry, error)
 	DeleteAll() error
+	DeleteByIDs([]int64) error
 	GetRouteNames() ([]string, error)
 }
 
@@ -79,6 +80,10 @@ func (s *Service) Get(id int64) (*Entry, error) {
 
 func (s *Service) Clear() error {
 	return s.repo.DeleteAll()
+}
+
+func (s *Service) DeleteByIDs(ids []int64) error {
+	return s.repo.DeleteByIDs(ids)
 }
 
 func (s *Service) GetRouteNames() ([]string, error) {

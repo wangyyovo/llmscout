@@ -108,6 +108,7 @@ func (a *App) QueryLogs(filter log.Filter) (log.QueryResult, error) {
 
 func (a *App) GetLog(id int64) (*log.Entry, error) { return a.logSvc.Get(id) }
 func (a *App) ClearLogs() error                    { return a.logSvc.Clear() }
+func (a *App) DeleteLogs(ids []int64) error        { return a.logSvc.DeleteByIDs(ids) }
 
 func (a *App) GetLogRouteNames() ([]string, error) { return a.logSvc.GetRouteNames() }
 
