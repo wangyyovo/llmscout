@@ -234,8 +234,23 @@ function summaryText(msg) {
 
 function isToolError(msg) {
   if (!msg.content) return false
-  const c = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-  return c.toLowerCase().includes('error')
+  const raw = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+  // Parse JSON: check for error/Error key
+  const parsed = tryParseJson(raw)
+  if (parsed && typeof parsed === 'object') {
+    // Check for common error fields
+    for (const key of ['error', 'Error', 'ERROR', 'err', 'fault', 'message']) {
+      if (parsed[key]) return true
+    }
+  }
+  // String heuristic: word-boundary match for error keywords
+  const lower = raw.toLowerCase()
+  const patterns = [
+    /\berror\b/, /\bexception\b/, /\bfailed\b/, /\bfailure\b/,
+    /\btimeout\b/, /\b500\b/, /\b401\b/, /\b403\b/, /\b404\b/,
+    /\b503\b/, /\binternal server error\b/, /\bbad gateway\b/
+  ]
+  return patterns.some(p => p.test(lower))
 }
 
 function isFailed(msg, tc) {
