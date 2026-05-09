@@ -36,7 +36,7 @@ type Engine struct {
 	logSvc  interface {
 		Record(log.Entry)
 	}
-	client   *http.Client
+	client *http.Client
 }
 
 func NewEngine(port int, matcher Matcher, logSvc interface {
@@ -131,6 +131,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:  "unknown",
 			Method:     r.Method,
 			Path:       r.URL.Path,
+			TargetURL:  "",
 			StatusCode: 502,
 			LatencyMs:  time.Since(start).Milliseconds(),
 			Protocol:   "REST",
@@ -138,7 +139,6 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read and store request body
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		stdlog.Printf("proxy: failed to read request body: %v", err)
@@ -146,10 +146,8 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 	r.Body = io.NopCloser(bytes.NewReader(reqBody))
 
-	// Capture request headers as JSON
 	reqHeaders := headersToJSON(r.Header)
 
-	// Build outgoing request
 	outReq, _ := http.NewRequestWithContext(r.Context(), r.Method, targetURL, bytes.NewReader(reqBody))
 	outReq.Header = r.Header.Clone()
 	outReq.Header.Set("X-Forwarded-For", r.RemoteAddr)
@@ -161,6 +159,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:  routeName,
 			Method:     r.Method,
 			Path:       r.URL.Path,
+			TargetURL:  targetURL,
 			StatusCode: 502,
 			LatencyMs:  time.Since(start).Milliseconds(),
 			ReqHeaders: reqHeaders,
@@ -174,7 +173,6 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 	respHeaders := headersToJSON(resp.Header)
 	contentType := resp.Header.Get("Content-Type")
 
-	// Copy response headers to client
 	for k, v := range resp.Header {
 		w.Header()[k] = append([]string{}, v...)
 	}
@@ -200,7 +198,6 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			if err != nil {
-				// Log partial data read
 				break
 			}
 		}
@@ -208,6 +205,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:   routeName,
 			Method:      r.Method,
 			Path:        r.URL.Path,
+			TargetURL:   targetURL,
 			StatusCode:  resp.StatusCode,
 			LatencyMs:   time.Since(start).Milliseconds(),
 			ReqHeaders:  reqHeaders,
@@ -227,6 +225,7 @@ func (e *Engine) handleRequest(w http.ResponseWriter, r *http.Request) {
 			RouteName:   routeName,
 			Method:      r.Method,
 			Path:        r.URL.Path,
+			TargetURL:   targetURL,
 			StatusCode:  resp.StatusCode,
 			LatencyMs:   time.Since(start).Milliseconds(),
 			ReqHeaders:  reqHeaders,

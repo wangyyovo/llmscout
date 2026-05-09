@@ -5,6 +5,7 @@ type Entry struct {
 	RouteName   string `json:"routeName"`
 	Method      string `json:"method"`
 	Path        string `json:"path"`
+	TargetURL   string `json:"targetUrl"`
 	Protocol    string `json:"protocol"` // "REST" | "SSE"
 	StatusCode  int    `json:"statusCode"`
 	LatencyMs   int64  `json:"latencyMs"`

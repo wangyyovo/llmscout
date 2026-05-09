@@ -177,11 +177,11 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
               <input type="checkbox" :checked="selectedIds.length === logs.length && logs.length > 0" @click.stop="selectAll()" style="cursor: pointer;" />
             </th>
             <th style="color: var(--text-secondary); width: 55px;">协议</th>
-            <th style="color: var(--text-secondary); width: 55px;">方法</th>
-            <th style="color: var(--text-secondary); width: 65px;">状态</th>
-            <th style="color: var(--text-secondary); width: 90px;">服务商</th>
-            <th style="color: var(--text-secondary);">路径</th>
+            <th style="color: var(--text-secondary); width: 50px;">方法</th>
+            <th style="color: var(--text-secondary); width: 60px;">状态</th>
+            <th style="color: var(--text-secondary); width: 80px;">服务商</th>
             <th style="color: var(--text-secondary); width: 65px;">耗时</th>
+            <th style="color: var(--text-secondary); max-width: 300px;">实际地址</th>
             <th style="color: var(--text-secondary); width: 140px;">时间</th>
           </tr>
         </thead>
@@ -191,12 +191,14 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
               <input type="checkbox" :checked="isSelected(log.id)" @click.stop="toggleSelect(log.id)" style="cursor: pointer;" />
             </td>
             <td @click="openDetail(log.id)"><n-tag :type="log.protocol === 'SSE' ? 'warning' : 'info'" size="tiny">{{ log.protocol }}</n-tag></td>
-            <td @click="openDetail(log.id)" style="color: #89b4fa;">{{ log.method }}</td>
+            <td @click="openDetail(log.id)" style="color: #89b4fa; font-size: 12px;">{{ log.method }}</td>
             <td @click="openDetail(log.id)"><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
-            <td @click="openDetail(log.id)" style="color: var(--text-primary);">{{ log.routeName }}</td>
-            <td @click="openDetail(log.id)"><code style="color: #a6e3a1; font-size: 12px;">{{ log.path }}</code></td>
-            <td @click="openDetail(log.id)" style="color: var(--text-primary);">{{ formatLatency(log.latencyMs) }}</td>
-            <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
+            <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ log.routeName }}</td>
+            <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ formatLatency(log.latencyMs) }}</td>
+            <td @click="openDetail(log.id)" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+              <code style="color: #a6e3a1; font-size: 11px; white-space: nowrap;" :title="log.targetUrl">{{ log.targetUrl || log.path }}</code>
+            </td>
+            <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px; white-space: nowrap;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
             <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>

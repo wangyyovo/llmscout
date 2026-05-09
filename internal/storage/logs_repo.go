@@ -19,10 +19,10 @@ func NewLogsRepo(db *sql.DB) *LogsRepo {
 func (r *LogsRepo) Insert(entry log.Entry) (int64, error) {
 	createdAt := time.UnixMilli(entry.CreatedAt)
 	res, err := r.db.Exec(
-		`INSERT INTO logs (route_name, method, path, protocol, status_code, latency_ms,
+		`INSERT INTO logs (route_name, method, path, target_url, protocol, status_code, latency_ms,
 		 req_headers, req_body, resp_headers, resp_body, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		entry.RouteName, entry.Method, entry.Path, entry.Protocol,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		entry.RouteName, entry.Method, entry.Path, entry.TargetURL, entry.Protocol,
 		entry.StatusCode, entry.LatencyMs, entry.ReqHeaders, entry.ReqBody,
 		entry.RespHeaders, entry.RespBody, createdAt,
 	)
@@ -81,7 +81,7 @@ func (r *LogsRepo) Query(filter log.Filter) (log.QueryResult, error) {
 	}
 
 	offset := (filter.Page - 1) * filter.PageSize
-	dataQuery := fmt.Sprintf("SELECT id, route_name, method, path, protocol, status_code, latency_ms, req_headers, req_body, resp_headers, resp_body, created_at FROM logs%s ORDER BY id DESC LIMIT ? OFFSET ?", clause)
+	dataQuery := fmt.Sprintf("SELECT id, route_name, method, path, target_url, protocol, status_code, latency_ms, req_headers, req_body, resp_headers, resp_body, created_at FROM logs%s ORDER BY id DESC LIMIT ? OFFSET ?", clause)
 	dataArgs := append(args, filter.PageSize, offset)
 	rows, err := r.db.Query(dataQuery, dataArgs...)
 	if err != nil {
@@ -93,7 +93,7 @@ func (r *LogsRepo) Query(filter log.Filter) (log.QueryResult, error) {
 	for rows.Next() {
 		var e log.Entry
 		var createdAt time.Time
-		if err := rows.Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.Protocol,
+		if err := rows.Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.TargetURL, &e.Protocol,
 			&e.StatusCode, &e.LatencyMs, &e.ReqHeaders, &e.ReqBody,
 			&e.RespHeaders, &e.RespBody, &createdAt); err != nil {
 			stdlog.Printf("scan log row: %v", err)
@@ -112,8 +112,8 @@ func (r *LogsRepo) Get(id int64) (*log.Entry, error) {
 	var e log.Entry
 	var createdAt time.Time
 	err := r.db.QueryRow(
-		"SELECT id, route_name, method, path, protocol, status_code, latency_ms, req_headers, req_body, resp_headers, resp_body, created_at FROM logs WHERE id=?", id,
-	).Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.Protocol,
+		"SELECT id, route_name, method, path, target_url, protocol, status_code, latency_ms, req_headers, req_body, resp_headers, resp_body, created_at FROM logs WHERE id=?", id,
+	).Scan(&e.ID, &e.RouteName, &e.Method, &e.Path, &e.TargetURL, &e.Protocol,
 		&e.StatusCode, &e.LatencyMs, &e.ReqHeaders, &e.ReqBody,
 		&e.RespHeaders, &e.RespBody, &createdAt)
 	if err != nil {
