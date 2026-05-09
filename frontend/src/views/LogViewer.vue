@@ -181,7 +181,8 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <th style="color: var(--text-secondary); width: 60px;">状态</th>
             <th style="color: var(--text-secondary); width: 75px;">服务商</th>
             <th style="color: var(--text-secondary); width: 60px;">耗时</th>
-            <th style="color: var(--text-secondary); max-width: 350px;">请求 / 目标地址</th>
+            <th style="color: var(--text-secondary); min-width: 200px;">请求地址</th>
+            <th style="color: var(--text-secondary); min-width: 200px;">转发到</th>
             <th style="color: var(--text-secondary); width: 140px;">时间</th>
           </tr>
         </thead>
@@ -195,17 +196,16 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td @click="openDetail(log.id)"><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
             <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ log.routeName }}</td>
             <td @click="openDetail(log.id)" style="color: var(--text-primary); font-size: 12px;">{{ formatLatency(log.latencyMs) }}</td>
-            <td @click="openDetail(log.id)" style="max-width: 350px; overflow: hidden;">
-              <div v-if="log.targetUrl" style="font-size: 11px; line-height: 1.3;">
-                <div style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" :title="log.requestUrl">→ {{ log.requestUrl || log.path }}</div>
-                <div style="color: #a6e3a1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" :title="log.targetUrl">↳ {{ log.targetUrl }}</div>
-              </div>
-              <code v-else style="color: var(--text-muted); font-size: 11px;">{{ log.path }}</code>
+            <td @click="openDetail(log.id)" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="log.requestUrl">
+              <code style="color: var(--text-secondary); font-size: 11px;">{{ log.requestUrl || log.path }}</code>
+            </td>
+            <td @click="openDetail(log.id)" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="log.targetUrl">
+              <code style="color: #a6e3a1; font-size: 11px;">{{ log.targetUrl || '-' }}</code>
             </td>
             <td @click="openDetail(log.id)" style="color: var(--text-secondary); font-size: 12px; white-space: nowrap;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
-            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
+            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无日志记录</td>
           </tr>
         </tbody>
       </n-table>
