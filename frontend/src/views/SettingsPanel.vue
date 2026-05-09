@@ -181,4 +181,17 @@ async function handleClear() {
 .danger-card {
   border: 1px solid rgba(243,139,168,0.2) !important;
 }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .settings-grid { max-width: none; }
+}
+@media (max-width: 600px) {
+  .block-header { gap: 10px; }
+  .block-icon { width: 34px; height: 34px; border-radius: 8px; }
+  .block-body { margin-left: 0; }
+  .db-path { margin-left: 0; }
+  .danger-section .n-button { margin-left: 0; }
+  :deep(.block-card .n-card__content) { padding: 18px 16px; }
+}
 </style>

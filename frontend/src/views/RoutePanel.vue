@@ -222,4 +222,24 @@ onMounted(load)
   color: var(--text-secondary);
   font-weight: 500;
 }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .route-modal { max-width: 95vw; }
+}
+@media (max-width: 600px) {
+  .route-card-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .route-left {
+    gap: 6px;
+  }
+  .route-actions {
+    justify-content: flex-end;
+  }
+  .route-path, .route-target { font-size: 12px; }
+  .empty-state { padding: 40px 16px; }
+}
 </style>

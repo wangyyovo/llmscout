@@ -281,4 +281,17 @@ onUnmounted(() => {
   word-break: break-all;
   min-width: 0;
 }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .proxy-grid { max-width: none; }
+  .stats-row { gap: 10px; }
+  :deep(.stat-card .n-statistic__value) { font-size: 20px; }
+}
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr; gap: 8px; }
+  .port-row { flex-wrap: wrap; gap: 8px; }
+  .port-addr { width: 100%; margin-left: 68px; }
+  :deep(.stat-card .n-statistic__value) { font-size: 18px; }
+}
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, h, computed } from 'vue'
+import { ref, shallowRef, h, computed, onMounted, onUnmounted } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton, NIcon } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
 import { ServerOutline, GitBranchOutline, DocumentTextOutline, SettingsOutline } from '@vicons/ionicons5'
@@ -12,6 +12,7 @@ import logoSvg from './assets/logo.svg'
 const { naiveTheme, themeClass } = useTheme()
 
 const collapsed = ref(false)
+const autoCollapsed = ref(false)
 const activeTab = ref('proxy')
 
 const renderIcon = (icon) => () => h(NIcon, { size: 18 }, () => h(icon))
@@ -41,6 +42,20 @@ const layoutStyle = computed(() => ({
   background: 'var(--bg-main)',
   color: 'var(--text-primary)'
 }))
+
+// Auto-collapse sidebar on narrow windows
+let mql = null
+function onResize(e) {
+  autoCollapsed.value = e.matches
+}
+onMounted(() => {
+  mql = window.matchMedia('(max-width: 900px)')
+  autoCollapsed.value = mql.matches
+  mql.addEventListener('change', onResize)
+})
+onUnmounted(() => {
+  if (mql) mql.removeEventListener('change', onResize)
+})
 
 // Shared NaiveUI theme overrides for consistent control sizing
 const themeOverrides = {
@@ -74,7 +89,7 @@ const themeOverrides = {
       <n-layout has-sider position="absolute" style="height: 100vh;">
         <n-layout-sider
           bordered
-          :collapsed="collapsed"
+          :collapsed="autoCollapsed || collapsed"
           collapse-mode="width"
           :collapsed-width="56"
           :width="200"
@@ -256,4 +271,15 @@ body { background: var(--bg-main); color: var(--text-primary); }
 /* Fade transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .n-layout-content { padding: 20px 20px !important; }
+  .page-title { font-size: 18px; }
+}
+@media (max-width: 600px) {
+  .n-layout-content { padding: 16px 14px !important; }
+  .page-title { font-size: 17px; }
+  .page-header { margin-bottom: 14px; }
+}
 </style>
