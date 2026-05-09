@@ -351,7 +351,8 @@ const roleColors = {
                 </div>
               </template>
               <div v-else style="color: var(--text-primary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">{{ typeof tr.content === 'string' ? tr.content : JSON.stringify(tr.content) }}</div>
-            </div>
+          </div>
+          </div>
           </div>
         </details>
       </div>
