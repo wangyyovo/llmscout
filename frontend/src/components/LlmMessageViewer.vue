@@ -226,6 +226,12 @@ function toTextContent(content) {
   return JSON.stringify(content)
 }
 
+function summaryText(msg) {
+  let t = msg.content || msg.reasoning_content || ''
+  if (typeof t !== 'string') return '(非文本内容)'
+  return t.length > 60 ? t.slice(0, 60) + '...' : t
+}
+
 function tryParseJson(str) {
   if (!str) return null
   try { return JSON.parse(str) } catch { return null }
@@ -285,15 +291,17 @@ const roleColors = {
       </div>
 
       <div v-if="messages" style="display: flex; flex-direction: column; gap: 10px;">
-        <div
+        <details
           v-for="(msg, i) in messages" :key="i"
-          style="background: var(--bg-message); border-radius: 8px; padding: 12px 16px; border-left: 3px solid transparent;"
+          style="background: var(--bg-message); border-radius: 8px; border-left: 3px solid transparent;"
           :style="{ borderLeftColor: msg.role === 'user' ? '#89b4fa' : msg.role === 'assistant' ? '#a6e3a1' : msg.role === 'system' ? '#cba6f7' : '#fab387' }"
         >
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <summary style="padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none;">
             <n-tag :type="roleColors[msg.role] || 'default'" size="small">{{ msg.role || 'unknown' }}</n-tag>
             <span v-if="msg.name" style="color: var(--text-muted); font-size: 12px;">{{ msg.name }}</span>
-          </div>
+            <span style="color: var(--text-muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ summaryText(msg) }}</span>
+          </summary>
+          <div style="padding: 0 16px 12px 16px;">
 
           <div v-if="msg.reasoning_content" style="margin-bottom: 8px; padding: 8px 12px; background: var(--bg-code); border-radius: 4px; color: #fab387; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; border-left: 2px solid #fab387;">
             <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7;">🧠 思考过程</div>
@@ -345,7 +353,7 @@ const roleColors = {
               <div v-else style="color: var(--text-primary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">{{ typeof tr.content === 'string' ? tr.content : JSON.stringify(tr.content) }}</div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <div v-if="tools && tools.length > 0" style="margin-top: 16px;">
