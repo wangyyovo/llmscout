@@ -27,6 +27,37 @@ const parsed = computed(() => {
   return null
 })
 
+// Extract streaming content from SSE body (concatenated deltas)
+const sseContent = computed(() => {
+  if (!props.data || !props.data.includes('data:')) return null
+  const lines = props.data.split('\n').filter(l => l.startsWith('data:'))
+  let content = ''
+  let reasoning = ''
+  let modelName = ''
+  let stopReason = ''
+  for (const l of lines) {
+    const j = l.slice(5).trim()
+    if (!j || j === '[DONE]') continue
+    try {
+      const evt = JSON.parse(j)
+      if (evt.model && !modelName) modelName = evt.model
+      if (evt.choices) {
+        for (const c of evt.choices) {
+          if (c.delta) {
+            if (c.delta.content) content += c.delta.content
+            if (c.delta.reasoning_content) reasoning += c.delta.reasoning_content
+          }
+          if (c.finish_reason) stopReason = c.finish_reason
+        }
+      }
+    } catch { /* skip */ }
+  }
+  if (content || reasoning || stopReason) {
+    return { content: content.trim(), reasoning: reasoning.trim(), model: modelName, stopReason }
+  }
+  return null
+})
+
 const modelInfo = computed(() => {
   if (!parsed.value) return null
   if (parsed.value.model) return parsed.value.model
@@ -125,23 +156,44 @@ const roleColors = {
 <template>
   <div>
     <!-- Model info row + raw toggle -->
-    <div v-if="hasLLMContent" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-      <n-tag v-if="modelInfo" size="small" type="primary">{{ modelInfo }}</n-tag>
+    <div v-if="hasLLMContent || sseContent || parsed" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+      <n-tag v-if="modelInfo || (sseContent && sseContent.model)" size="small" type="primary">{{ modelInfo || sseContent.model }}</n-tag>
       <n-tag v-if="parsed && parsed.stream" size="small" type="warning">stream</n-tag>
       <span style="flex: 1;"></span>
       <n-button quaternary size="tiny" @click="emit('update:showRaw', !props.showRaw)" style="color: var(--text-muted);">
-        {{ props.showRaw ? '📖 解析视图' : '📄 原始报文' }}
+        {{ props.showRaw ? (sseContent ? '📖 提取内容' : '📖 解析视图') : (sseContent ? '📄 原始报文' : '📄 原始报文') }}
       </n-button>
     </div>
 
-    <!-- Raw JSON mode -->
+    <!-- Raw mode: show raw JSON or raw SSE text -->
     <template v-if="props.showRaw">
-      <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--text-primary); white-space: pre-wrap;">{{ JSON.stringify(parsed, null, 2) }}</pre>
+      <template v-if="sseContent">
+        <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--text-primary); white-space: pre-wrap;">{{ data }}</pre>
+      </template>
+      <template v-else>
+        <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--text-primary); white-space: pre-wrap;">{{ JSON.stringify(parsed, null, 2) }}</pre>
+      </template>
     </template>
 
-    <!-- Parsed mode -->
+    <!-- Parsed mode or SSE extracted view -->
     <template v-if="!props.showRaw">
-      <div v-if="!hasLLMContent && parsed">
+      <!-- SSE extracted content -->
+      <template v-if="sseContent">
+        <div v-if="sseContent.reasoning" style="margin-bottom: 8px; padding: 8px 12px; background: var(--bg-code); border-radius: 4px; color: #fab387; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; border-left: 2px solid #fab387;">
+          <div style="color: #fab387; font-size: 11px; margin-bottom: 4px; opacity: 0.7;">🧠 思考过程</div>
+          {{ sseContent.reasoning }}
+        </div>
+        <div style="color: var(--text-primary); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">
+          <markdown-renderer v-if="sseContent.content" :content="sseContent.content" />
+          <span v-else style="color: var(--text-muted); font-size: 12px; font-style: italic;">（空）</span>
+        </div>
+        <div v-if="sseContent.stopReason" style="margin-top: 8px;">
+          <n-tag size="tiny" type="info">finish: {{ sseContent.stopReason }}</n-tag>
+        </div>
+      </template>
+
+      <!-- Non-SSE: no LLM content fallback -->
+      <div v-else-if="!hasLLMContent && parsed">
         <pre style="background: var(--bg-code); border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--text-primary); white-space: pre-wrap;">{{ JSON.stringify(parsed, null, 2) }}</pre>
       </div>
 
