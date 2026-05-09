@@ -483,9 +483,9 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .page-size-select { width: 72px; }
 
 /* Detail modal */
-.detail-modal { max-width: 860px; }
+.detail-modal { max-width: 1000px; }
 .detail-body {
-  max-height: calc(80vh - 100px);
+  max-height: calc(90vh - 80px);
   overflow-y: auto;
 }
 
