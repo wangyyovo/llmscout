@@ -92,7 +92,14 @@ function formatTime(t) {
   if (!t) return ''
   const d = new Date(t)
   const pad = n => String(n).padStart(2, '0')
-  return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+function formatLatency(ms) {
+  if (!ms && ms !== 0) return '-'
+  if (ms < 1000) return ms + ' ms'
+  if (ms < 10000) return (ms / 1000).toFixed(1) + ' s'
+  return Math.round(ms / 1000) + ' s'
 }
 
 function statusTagType(code) {
@@ -147,7 +154,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
             <td><n-tag :type="statusTagType(log.statusCode)" size="tiny">{{ log.statusCode }}</n-tag></td>
             <td style="color: var(--text-primary);">{{ log.routeName }}</td>
             <td><code style="color: #a6e3a1; font-size: 12px;">{{ log.path }}</code></td>
-            <td style="color: var(--text-primary);">{{ log.latencyMs }}ms</td>
+            <td style="color: var(--text-primary);">{{ formatLatency(log.latencyMs) }}</td>
             <td style="color: var(--text-secondary); font-size: 12px;">{{ formatTime(log.createdAt) }}</td>
           </tr>
           <tr v-if="logs.length === 0">
