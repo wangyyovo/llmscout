@@ -85,15 +85,19 @@ const messages = computed(() => {
       // Anthropic: content is array of blocks -> normalize to string for markdown
       if (Array.isArray(m.content)) {
         const texts = []
+        const toolCalls = []
         let reasoning = []
         for (const b of m.content) {
           if (b.type === 'text') texts.push(b.text)
           else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
-          else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
+          else if (b.type === 'tool_use') {
+            toolCalls.push({ function: { name: b.name, arguments: JSON.stringify(b.input) } })
+          }
           else if (b.type === 'tool_result') texts.push(`[tool_result: ${b.content || ''}]`)
           else texts.push(JSON.stringify(b))
         }
         msg.content = texts.filter(t => t != null && ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
+        if (toolCalls.length) msg.tool_calls = (msg.tool_calls || []).concat(toolCalls)
         if (reasoning.length && !msg.reasoning_content) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
       }
       msgs.push(msg)
@@ -113,15 +117,19 @@ const messages = computed(() => {
   // Anthropic response format: { role: "assistant", content: [...] }
   if (parsed.value.content && Array.isArray(parsed.value.content) && parsed.value.role) {
     const texts = []
+    const toolCalls = []
     let reasoning = []
     for (const b of parsed.value.content) {
       if (b.type === 'text') texts.push(b.text)
       else if (b.type === 'thinking') reasoning.push(b.thinking || b.text || '')
-      else if (b.type === 'tool_use') texts.push(`[tool_use: ${b.name}(${JSON.stringify(b.input)})]`)
+      else if (b.type === 'tool_use') {
+        toolCalls.push({ function: { name: b.name, arguments: JSON.stringify(b.input) } })
+      }
       else texts.push(JSON.stringify(b))
     }
-    const msg = { role: parsed.value.role, content: texts.filter(t => t != null && ('' + t).trim()).join('\n') }
-    if (reasoning.length) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).join('\n')
+    const msg = { role: parsed.value.role, content: texts.filter(t => t != null && ('' + t).trim()).map(t => ('' + t).trim()).join('\n') }
+    if (toolCalls.length) msg.tool_calls = toolCalls
+    if (reasoning.length) msg.reasoning_content = reasoning.filter(t => ('' + t).trim()).map(t => ('' + t).trim()).join('\n')
     if (parsed.value.stop_reason) msg.stop_reason = parsed.value.stop_reason
     return [msg]
   }
