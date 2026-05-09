@@ -427,6 +427,18 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 }
 .page-size-select { width: 72px; }
 
-/* Detail modal */
+/* Detail modal — sticky header so close button doesn't scroll away */
 .detail-modal { max-width: 860px; }
+:deep(.detail-modal .n-card > .n-card-header) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+:deep(.detail-modal .n-card > .n-card__content) {
+  max-height: 70vh;
+  overflow-y: auto;
+}
 </style>
