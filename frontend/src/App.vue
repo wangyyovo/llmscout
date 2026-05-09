@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, h, computed, onMounted } from 'vue'
+import { ref, shallowRef, h, computed } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
 import ProxyPanel from './views/ProxyPanel.vue'
@@ -8,27 +8,6 @@ import LogViewer from './views/LogViewer.vue'
 import SettingsPanel from './views/SettingsPanel.vue'
 
 const { naiveTheme, themeClass } = useTheme()
-
-// Open external links in system browser via Wails runtime
-onMounted(() => {
-  document.addEventListener('click', (e) => {
-    let target = e.target
-    while (target && target !== document) {
-      if (target.tagName === 'A' && target.href && !target.href.startsWith('javascript:')) {
-        const url = target.getAttribute('href')
-        if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:'))) {
-          e.preventDefault()
-          const w = window.open(url, '_blank')
-          if (!w || w.closed) {
-            try { window.runtime.BrowserOpenURL(url) } catch { /* fallback */ }
-          }
-        }
-        return
-      }
-      target = target.parentElement
-    }
-  })
-})
 
 const collapsed = ref(false)
 const activeTab = ref('proxy')
