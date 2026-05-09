@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, h, computed, onMounted, onUnmounted } from 'vue'
+import { ref, shallowRef, h, computed } from 'vue'
 import { NConfigProvider, NMessageProvider, NLayout, NLayoutSider, NMenu, NButton } from 'naive-ui'
 import { useTheme } from './composables/useTheme.js'
 import ProxyPanel from './views/ProxyPanel.vue'
@@ -11,16 +11,10 @@ const { naiveTheme, themeClass } = useTheme()
 
 const collapsed = ref(false)
 const activeTab = ref('proxy')
-const showTopBtn = ref(false)
 
-function handleScroll(e) {
-  showTopBtn.value = e.target.scrollTop > 300
-}
-
-function scrollToTop(e) {
-  e.stopPropagation()
+function scrollToTop() {
   const el = document.querySelector('.n-layout-scroll-container') || document.documentElement
-  el.scrollTo({ top: 0, behavior: 'smooth' })
+  if (el) el.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const menuOptions = [
@@ -31,20 +25,6 @@ const menuOptions = [
 ]
 
 const currentView = shallowRef(ProxyPanel)
-
-function addScrollListener() {
-  const el = document.querySelector('.n-layout-scroll-container')
-  if (el) el.addEventListener('scroll', handleScroll)
-}
-
-onMounted(() => {
-  // Delay to let DOM render
-  setTimeout(addScrollListener, 500)
-})
-onUnmounted(() => {
-  const el = document.querySelector('.n-layout-scroll-container')
-  if (el) el.removeEventListener('scroll', handleScroll)
-})
 
 function handleUpdate(key) {
   activeTab.value = key
@@ -99,7 +79,7 @@ const layoutStyle = computed(() => ({
       </n-layout>
     </n-message-provider>
     <Transition name="fade">
-      <n-button v-if="showTopBtn" circle size="medium" @click="scrollToTop"
+      <n-button circle size="medium" @click="scrollToTop"
         style="position: fixed; bottom: 24px; right: 24px; z-index: 100; opacity: 0.85;">
         ↑
       </n-button>
