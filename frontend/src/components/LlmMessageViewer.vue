@@ -129,8 +129,29 @@ const messages = computed(() => {
 
 const tools = computed(() => {
   if (!parsed.value) return null
-  if (parsed.value.tools) return parsed.value.tools
-  return null
+  if (!parsed.value.tools) return null
+  // Normalize both OpenAI and Anthropic tool formats
+  return parsed.value.tools.map(t => {
+    // OpenAI format: { type: "function", function: { name, description, parameters } }
+    if (t.function) {
+      return {
+        name: t.function.name,
+        description: t.function.description,
+        inputSchema: t.function.parameters,
+        type: t.type || 'function'
+      }
+    }
+    // Anthropic format: { name, description, input_schema }
+    if (t.name) {
+      return {
+        name: t.name,
+        description: t.description || '',
+        inputSchema: t.input_schema || null,
+        type: 'function'
+      }
+    }
+    return t
+  })
 })
 
 const toolChoice = computed(() => {
@@ -301,22 +322,22 @@ const roleColors = {
         <n-collapse>
           <n-collapse-item :title="'🔧 工具定义 (' + tools.length + ')'" name="tools">
             <div v-for="(tool, i) in tools" :key="i" style="margin-bottom: 12px;">
-              <div v-if="tool.function" style="background: var(--bg-message); border-radius: 8px; padding: 12px; border-left: 3px solid #89dceb;">
+              <div style="background: var(--bg-message); border-radius: 8px; padding: 12px; border-left: 3px solid #89dceb;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                   <n-tag size="small" type="info">{{ tool.type || 'function' }}</n-tag>
-                  <code style="color: #89dceb; font-size: 14px; font-weight: bold;">{{ tool.function.name }}</code>
+                  <code style="color: #89dceb; font-size: 14px; font-weight: bold;">{{ tool.name }}</code>
                 </div>
-                <div v-if="tool.function.description" style="color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">{{ tool.function.description }}</div>
-                <div v-if="tool.function.parameters" style="margin-top: 6px;">
-                  <div v-if="tool.function.parameters.properties">
-                    <div v-for="(param, pName) in tool.function.parameters.properties" :key="pName" style="display: flex; align-items: baseline; gap: 6px; padding: 4px 8px; margin: 2px 0; background: var(--bg-code); border-radius: 4px; font-size: 12px;">
+                <div v-if="tool.description" style="color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">{{ tool.description }}</div>
+                <div v-if="tool.inputSchema" style="margin-top: 6px;">
+                  <template v-if="tool.inputSchema.properties">
+                    <div v-for="(param, pName) in tool.inputSchema.properties" :key="pName" style="display: flex; align-items: baseline; gap: 6px; padding: 4px 8px; margin: 2px 0; background: var(--bg-code); border-radius: 4px; font-size: 12px;">
                       <code style="color: #89dceb; font-weight: bold; white-space: nowrap;">{{ pName }}</code>
                       <span v-if="param.type" style="color: var(--text-muted); font-size: 11px;">{{ param.type }}</span>
-                      <span v-if="tool.function.parameters.required && tool.function.parameters.required.includes(pName)" style="color: #f38ba8; font-size: 11px;">*必填</span>
+                      <span v-if="tool.inputSchema.required && tool.inputSchema.required.includes(pName)" style="color: #f38ba8; font-size: 11px;">*必填</span>
                       <span v-if="param.description" style="color: var(--text-secondary); margin-left: 4px;">— {{ param.description }}</span>
                     </div>
-                  </div>
-                  <pre v-else style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ JSON.stringify(tool.function.parameters, null, 2) }}</pre>
+                  </template>
+                  <pre v-else style="color: var(--text-primary); font-size: 11px; margin-top: 4px; white-space: pre-wrap;">{{ JSON.stringify(tool.inputSchema, null, 2) }}</pre>
                 </div>
               </div>
             </div>
